@@ -8,7 +8,8 @@ This component allows you to create dynamic charts using Chart.js with a simple 
 
 - Chart.js library
 - Chart.js DataLabels plugin
-  Make sure to include the following scripts for both those elements in the <head> of each page where charts will be used:
+
+Make sure to include the following scripts for both those elements in the <head> of each page where charts will be used:
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
