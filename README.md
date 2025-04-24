@@ -14,10 +14,6 @@ Make sure to include the following scripts for both those elements in the <head>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-## Basic Setup
-
-Add the following data attributes to your Chart Component to create a chart:
-
 ## Data Attributes Reference
 
 ### Required Attributes:
