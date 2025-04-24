@@ -14,6 +14,10 @@ Make sure to include the following scripts for both those elements in the <head>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
+And also add the main script before the closing </body> tag of each page where charts will be used:
+
+<script src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@a293407/index.min.js" type="text/javascript"></script>
+
 ## Data Attributes Reference
 
 ### Required Attributes:
