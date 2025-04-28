@@ -25,19 +25,37 @@ charts.forEach((chart) => {
     .querySelector("canvas")
     .getContext("2d");
 
+  // Calculate number of datasets based on data points length
+  const numDatasets = Math.floor(dataPoints.length / labels.length);
+
+  // Create datasets array
+  const datasets = [];
+  for (let i = 0; i < numDatasets; i++) {
+    // Extract data points for this dataset
+    const start = i * labels.length;
+    const end = start + labels.length;
+    const datasetPoints = dataPoints.slice(start, end);
+
+    // Get color for this dataset
+    const backgroundColor =
+      backgroundColors[i] || backgroundColors[0] || "#000000";
+    const borderColor = borderColors[i] || borderColors[0] || "#000000";
+
+    // Create dataset object
+    datasets.push({
+      label: numDatasets > 1 ? `${chartTitle} ${i + 1}` : chartTitle,
+      data: datasetPoints,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      borderWidth: 0,
+    });
+  }
+
   new Chart(ctx, {
     type: chartType,
     data: {
       labels: labels,
-      datasets: [
-        {
-          label: chartTitle,
-          data: dataPoints,
-          backgroundColor: backgroundColors,
-          borderColor: borderColors,
-          borderWidth: 0,
-        },
-      ],
+      datasets: datasets,
     },
     options: {
       responsive: true,

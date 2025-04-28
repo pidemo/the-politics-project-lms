@@ -26,12 +26,12 @@ And also add the main script before the closing </body> tag of each page where c
 - **Chart Title** (`chart-title`): The title of your chart that will appear in the legend.
 - **Chart Type** (`chart-type`): The type of chart to render (e.g., 'pie', 'bar', 'line').
 - **[] Chart Labels** (`chart-labels`): Labels for your data points. Must be a valid JSON string array, like this: ["Monday", "Tuesday", "Wednesday"]
-- **[] Chart Data Points** (`chart-data-points`): Numerical values for your chart. Must be a valid JSON array of numbers, like this: [12, 32, 31]
+- **[] Chart Data Points** (`chart-data-points`): Numerical values for your chart. Must be a valid JSON array of numbers. For multiple bars per label, provide N × labels.length values, where N is the number of bars you want per label.
 
 ### Optional Attributes:
 
-- **[] Chart Background Colors** (`chart-background-colors`): Background colors for chart elements. Must be a valid JSON array of color strings (hex, rgb, etc.), like this: ["#fff", "#ffb600", "#c1c1c1"]
-- **[] Chart Border Colors** (`chart-border-colors`): Border colors for chart elements. Must be a valid JSON array of color strings (hex, rgb, etc.), like this: ["#fff", "#ffb600", "#c1c1c1"]
+- **[] Chart Background Colors** (`chart-background-colors`): Background colors for chart elements. For multiple bars, you can provide one color per dataset. If fewer colors than datasets are provided, colors will be reused.
+- **[] Chart Border Colors** (`chart-border-colors`): Border colors for chart elements. For multiple bars, you can provide one color per dataset. If fewer colors than datasets are provided, colors will be reused.
 
 ## Features
 
@@ -40,10 +40,9 @@ And also add the main script before the closing </body> tag of each page where c
 - Customizable legend position (right for pie charts, top for other types)
 - Tooltip support showing percentage values
 - Flexible color customization
+- Automatic multiple bars per label based on data points array length
 
 ## Example Usage
-
-### Pie Chart
 
 ### Pie Chart
 
@@ -54,7 +53,7 @@ And also add the main script before the closing </body> tag of each page where c
 - chart-data-points: [30, 50, 20]
 - chart-background-colors: ["#FF6384", "#36A2EB", "#FFCE56"]
 
-### Bar Chart
+### Simple Bar Chart (1 bar per label)
 
 - data-chart: "bar-chart"
 - chart-title: "Monthly Sales"
@@ -63,10 +62,31 @@ And also add the main script before the closing </body> tag of each page where c
 - chart-data-points: [65, 75, 85]
 - chart-background-colors: ["#FF6384", "#36A2EB", "#FFCE56"]
 
+### Grouped Bar Chart (2 bars per label)
+
+- data-chart: "grouped-bar-chart"
+- chart-title: "Sales Comparison"
+- chart-type: "bar"
+- chart-labels: ["January", "February", "March"]
+- chart-data-points: [65, 75, 85, 45, 55, 65] // First 3 numbers for first bars, last 3 for second bars
+- chart-background-colors: ["#FF6384", "#36A2EB"] // One color per dataset
+
+### Triple Bar Chart (3 bars per label)
+
+- data-chart: "triple-bar-chart"
+- chart-title: "Three Year Comparison"
+- chart-type: "bar"
+- chart-labels: ["Q1", "Q2", "Q3", "Q4"]
+- chart-data-points: [65, 75, 85, 95, 45, 55, 65, 75, 35, 45, 55, 65] // 4 values × 3 datasets
+- chart-background-colors: ["#FF6384", "#36A2EB", "#FFCE56"] // One color per dataset
+
 ## Notes
 
-- All JSON arrays must be properly formatted and enclosed in single quotes (except for numerical values).
+- All JSON arrays must be properly formatted and enclosed in single quotes (except for numerical values)
 - Percentage values in data points should add up to 100 for pie charts
 - The component automatically adds '%' to values in tooltips and data labels
 - Data labels are only displayed on pie charts
 - Each chart must have a unique `data-chart` identifier
+- For multiple bars per label, ensure your data points array length is a multiple of your labels array length
+- The number of bars per label is automatically determined by dividing data points length by labels length
+- Dataset titles will be automatically numbered (e.g., "Sales 1", "Sales 2") when multiple datasets are detected
