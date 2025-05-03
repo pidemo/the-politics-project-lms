@@ -36,10 +36,17 @@ charts.forEach((chart) => {
     const end = start + labels.length;
     const datasetPoints = dataPoints.slice(start, end);
 
-    // Get color for this dataset
-    const backgroundColor =
-      backgroundColors[i] || backgroundColors[0] || "#000000";
-    const borderColor = borderColors[i] || borderColors[0] || "#000000";
+    // Handle colors differently for pie charts vs other types
+    let backgroundColor, borderColor;
+    if (chartType.toLowerCase() === "pie") {
+      // For pie charts, use all colors for a single dataset
+      backgroundColor = backgroundColors;
+      borderColor = borderColors;
+    } else {
+      // For other chart types, use one color per dataset
+      backgroundColor = backgroundColors[i] || backgroundColors[0] || "#000000";
+      borderColor = borderColors[i] || borderColors[0] || "#000000";
+    }
 
     // Create dataset object
     datasets.push({
