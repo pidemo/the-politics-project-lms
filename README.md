@@ -6,17 +6,22 @@ This component allows you to create dynamic charts using Chart.js with a simple 
 
 ## Prerequisites
 
-- Chart.js library
-- Chart.js DataLabels plugin
-
-Make sure to include the following scripts for both those elements in the <head> of each page where charts will be used:
-
+- Chart.js library:
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+- Chart.js DataLabels plugin:
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-And also add the main script before the closing </body> tag of each page where charts will be used:
+- The Actual Script to render all charts
+<script src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/index.min.js" type="text/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@a3d4405/index.min.js" type="text/javascript"></script>
+Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so you don't need to worry about getting the latest version.
+
+## Basic Install in Webflow
+
+1- Add the "Chart Scripts" component on any page where you need to render one or more charts (anywhere, but preferably at the bottom of the page/DOM).
+2- Add a "Chart Component" component wherever you need to add a chart on the page.
+3- Set all the required component properties for the Chart Component, following the guidelines about attributes below.
 
 ## Data Attributes Reference
 
