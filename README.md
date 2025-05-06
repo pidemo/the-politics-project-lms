@@ -7,36 +7,71 @@ This component allows you to create dynamic charts using Chart.js with a simple 
 ## Prerequisites
 
 - Chart.js library:
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  ```html
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  ```
 
 - Chart.js DataLabels plugin:
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-- The Actual Script to render all charts
-<script src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/index.min.js" type="text/javascript"></script>
+  ```html
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  ```
+
+- The Actual Script to render all charts:
+  ```html
+  <script
+    src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/index.min.js"
+    type="text/javascript"
+  ></script>
+  ```
 
 Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so you don't need to worry about getting the latest version.
 
 ## Basic Install in Webflow
 
-1- Add the "Chart Scripts" component on any page where you need to render one or more charts (anywhere, but preferably at the bottom of the page/DOM).
-2- Add a "Chart Component" component wherever you need to add a chart on the page.
-3- Set all the required component properties for the Chart Component, following the guidelines about attributes below.
+1. Add the "Chart Scripts" component on any page where you need to render one or more charts (anywhere, but preferably at the bottom of the page/DOM).
+2. Add a "Chart Component" component wherever you need to add a chart on the page.
+3. Set all the required component properties for the Chart Component, following the guidelines about attributes below.
 
 ## Data Attributes Reference
 
 ### Required Attributes:
 
-- **Chart ID** (`data-chart`): Unique identifier for the chart. Must be unique.
-- **Chart Title** (`chart-title`): The title of your chart that will appear in the legend.
-- **Chart Type** (`chart-type`): The type of chart to render (e.g., 'pie', 'bar', 'line').
-- **[] Chart Labels** (`chart-labels`): Labels for your data points. Must be a valid JSON string array, like this: ["Monday", "Tuesday", "Wednesday"]
-- **[] Chart Data Points** (`chart-data-points`): Numerical values for your chart. Must be a valid JSON array of numbers. For multiple bars per label, provide N × labels.length values, where N is the number of bars you want per label.
+- **Chart ID** (`data-chart`)
+
+  - Unique identifier for the chart. Must be unique.
+
+- **Chart Title** (`chart-title`)
+
+  - The title of your chart that will appear in the legend.
+
+- **Chart Type** (`chart-type`)
+
+  - The type of chart to render (e.g., 'pie', 'bar', 'line').
+
+- **[] Chart Labels** (`chart-labels`)
+
+  - Labels for your data points.
+  - Must be a valid JSON string array, like this: `["Monday", "Tuesday", "Wednesday"]`
+
+- **[] Chart Data Points** (`chart-data-points`)
+  - Numerical values for your chart.
+  - Must be a valid JSON array of numbers.
+  - For multiple bars per label, provide N × labels.length values, where N is the number of bars you want per label.
 
 ### Optional Attributes:
 
-- **[] Chart Background Colors** (`chart-background-colors`): Background colors for chart elements. For multiple bars, you can provide one color per dataset. If fewer colors than datasets are provided, colors will be reused.
-- **[] Chart Border Colors** (`chart-border-colors`): Border colors for chart elements. For multiple bars, you can provide one color per dataset. If fewer colors than datasets are provided, colors will be reused.
+- **[] Chart Background Colors** (`chart-background-colors`)
+
+  - Background colors for chart elements.
+  - For multiple bars, you can provide one color per dataset.
+  - If fewer colors than datasets are provided, colors will be reused.
+
+- **[] Chart Border Colors** (`chart-border-colors`)
+  - Border colors for chart elements.
+  - For multiple bars, you can provide one color per dataset.
+  - If fewer colors than datasets are provided, colors will be reused.
 
 ## Features
 
