@@ -38,10 +38,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 ### Required Attributes:
 
-- **Chart ID** (`data-chart`)
-
-  - Unique identifier for the chart. Must be unique.
-
 - **Chart Title** (`chart-title`)
 
   - The title of your chart that will appear in the legend.
@@ -86,7 +82,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 ### Pie Chart
 
-- data-chart: "pie-chart"
 - chart-title: "Distribution"
 - chart-type: "pie"
 - chart-labels: ["Red", "Blue", "Yellow"]
@@ -95,7 +90,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 ### Simple Bar Chart (1 bar per label)
 
-- data-chart: "bar-chart"
 - chart-title: "Monthly Sales"
 - chart-type: "bar"
 - chart-labels: ["January", "February", "March"]
@@ -104,7 +98,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 ### Grouped Bar Chart (2 bars per label)
 
-- data-chart: "grouped-bar-chart"
 - chart-title: "Sales Comparison"
 - chart-type: "bar"
 - chart-labels: ["January", "February", "March"]
@@ -113,7 +106,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 ### Triple Bar Chart (3 bars per label)
 
-- data-chart: "triple-bar-chart"
 - chart-title: "Three Year Comparison"
 - chart-type: "bar"
 - chart-labels: ["Q1", "Q2", "Q3", "Q4"]
@@ -126,7 +118,6 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - Percentage values in data points should add up to 100 for pie charts
 - The component automatically adds '%' to values in tooltips and data labels
 - Data labels are only displayed on pie charts
-- Each chart must have a unique `data-chart` identifier
 - For multiple bars per label, ensure your data points array length is a multiple of your labels array length
 - The number of bars per label is automatically determined by dividing data points length by labels length
 - Dataset titles will be automatically numbered (e.g., "Sales 1", "Sales 2") when multiple datasets are detected

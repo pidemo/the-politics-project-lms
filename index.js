@@ -1,13 +1,12 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
-// setup with attributes
-const charts = document.querySelectorAll("[data-chart]");
+console.log("script running");
 
-//console.log(charts);
+// setup with attributes
+const charts = document.querySelectorAll("[chart-title]");
 
 charts.forEach((chart) => {
-  const chartId = chart.getAttribute("data-chart");
   const chartTitle = chart.getAttribute("chart-title");
   const chartType = chart.getAttribute("chart-type");
   const labels = JSON.parse(chart.getAttribute("chart-labels"));
@@ -20,10 +19,7 @@ charts.forEach((chart) => {
     : [];
 
   // Initialize Chart.js
-  const ctx = document
-    .getElementById(chartId)
-    .querySelector("canvas")
-    .getContext("2d");
+  const ctx = chart.querySelector("canvas").getContext("2d");
 
   // Calculate number of datasets based on data points length
   const numDatasets = Math.floor(dataPoints.length / labels.length);
