@@ -1,8 +1,6 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
-console.log("Test version running");
-
 // setup with attributes
 const charts = document.querySelectorAll("[chart-title]");
 
