@@ -21,6 +21,11 @@ charts.forEach((chart) => {
   const chartUnit = chart.getAttribute("chart-unit");
   const chartAriaLabel = chart.getAttribute("chart-aria-label");
 
+  // Parse custom dataset labels if provided
+  const datasetLabels = chart.getAttribute("chart-data-labels")
+    ? JSON.parse(chart.getAttribute("chart-data-labels"))
+    : [];
+
   // If pie chart and no unit specified, default to '%'
   let finalChartUnit = chartUnit;
   if (chartType && chartType.toLowerCase() === "pie" && !chartUnit) {
@@ -57,9 +62,19 @@ charts.forEach((chart) => {
       borderColor = borderColors[i] || borderColors[0] || "#000000";
     }
 
+    // Set dataset label
+    let datasetLabel;
+    if (numDatasets === 1) {
+      datasetLabel = chartTitle;
+    } else if (datasetLabels && datasetLabels[i]) {
+      datasetLabel = datasetLabels[i];
+    } else {
+      datasetLabel = `Dataset ${i + 1}`;
+    }
+
     // Create dataset object
     datasets.push({
-      label: numDatasets > 1 ? `${chartTitle} ${i + 1}` : chartTitle,
+      label: datasetLabel,
       data: datasetPoints,
       backgroundColor: backgroundColor,
       borderColor: borderColor,

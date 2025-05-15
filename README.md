@@ -82,8 +82,14 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
   - Example: `chart-unit=%` or `chart-unit=pts`
 
 - **Aria Label** (`chart-aria-label`)
+
   - Sets an accessible label for the chart's `<canvas>` element for screen readers.
   - Example: `chart-aria-label="Monthly Sales Bar Chart"`
+
+- **Dataset Labels** (`chart-data-labels`)
+  - A JSON array of strings to use as labels for each dataset (useful for grouped/multi-dataset charts).
+  - Example: `chart-data-labels='["2022", "2023"]'`
+  - If not provided, defaults to `Dataset 1`, `Dataset 2`, etc.
 
 ## Features
 
@@ -130,6 +136,7 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - chart-show-legend: true
 - chart-unit: €
 - chart-aria-label: Sales Comparison Bar Chart
+- chart-data-labels: ["2022", "2023"]
 
 ### Triple Bar Chart (3 bars per label)
 
@@ -141,6 +148,7 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - chart-show-legend: true
 - chart-unit: k
 - chart-aria-label: Three Year Comparison Bar Chart
+- chart-data-labels: ["2021", "2022", "2023"]
 
 ## Notes
 
@@ -153,3 +161,4 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - Use `chart-aria-label` to improve accessibility for screen readers
 - Use `chart-show-legend` to control the display of the chart legend
 - Use `chart-unit` to append a custom unit to all displayed values
+- For grouped/multi-dataset charts, use `chart-data-labels` to set custom labels for each dataset
