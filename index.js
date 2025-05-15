@@ -1,6 +1,8 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
+console.log("Test version running");
+
 // setup with attributes
 const charts = document.querySelectorAll("[chart-title]");
 
@@ -18,6 +20,12 @@ charts.forEach((chart) => {
   const showLegend = chart.getAttribute("chart-show-legend");
   const chartUnit = chart.getAttribute("chart-unit");
   const chartAriaLabel = chart.getAttribute("chart-aria-label");
+
+  // If pie chart and no unit specified, default to '%'
+  let finalChartUnit = chartUnit;
+  if (chartType && chartType.toLowerCase() === "pie" && !chartUnit) {
+    finalChartUnit = "%";
+  }
 
   // Set Aria Label for the canvas element
   const canvas = chart.querySelector("canvas");
@@ -71,7 +79,13 @@ charts.forEach((chart) => {
       plugins: {
         datalabels: {
           display: function (context) {
-            return context.chart.config.type.toLowerCase() === "pie";
+            // Only apply to pie charts
+            if (context.chart.config.type.toLowerCase() !== "pie") return false;
+            const dataset = context.dataset.data;
+            const value = context.dataset.data[context.dataIndex];
+            const total = dataset.reduce((a, b) => a + b, 0);
+            const percent = (value / total) * 100;
+            return percent >= 6;
           },
           color: "#fff",
           font: {
@@ -79,7 +93,7 @@ charts.forEach((chart) => {
             size: 14,
           },
           formatter: function (value) {
-            return value + chartUnit;
+            return value + finalChartUnit;
           },
           anchor: "center",
           align: "center",
@@ -102,7 +116,7 @@ charts.forEach((chart) => {
           callbacks: {
             label: function (context) {
               const value = context.raw;
-              return `${value}${chartUnit}`;
+              return `${value}${finalChartUnit}`;
             },
           },
         },

@@ -77,8 +77,9 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 
 - **Custom Units** (`chart-unit`)
 
-  - A string to append to each value in tooltips and data labels (e.g., `%`, `pts`, `€`).
-  - Example: `chart-unit="%"` or `chart-unit="pts"`
+  - A string to append to each value in tooltips and data labels (e.g., %, pts, €).
+  - For pie charts, the unit will default to `%` unless you specify a different unit with this attribute.
+  - Example: `chart-unit=%` or `chart-unit=pts`
 
 - **Aria Label** (`chart-aria-label`)
   - Sets an accessible label for the chart's `<canvas>` element for screen readers.
@@ -146,6 +147,7 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - All JSON arrays must be properly formatted and enclosed in single quotes (except for numerical values)
 - Percentage values in data points should add up to 100 for pie charts
 - The component automatically adds the custom unit (or % for pie charts) to values in tooltips and data labels
+- For pie charts, if you do not specify a unit, `%` will be used by default
 - For multiple bars per label, ensure your data points array length is a multiple of your labels array length
 - The number of bars per label is automatically determined by dividing data points length by labels length
 - Use `chart-aria-label` to improve accessibility for screen readers
