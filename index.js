@@ -1,8 +1,6 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
-console.log("script running");
-
 // setup with attributes
 const charts = document.querySelectorAll("[chart-title]");
 
@@ -17,6 +15,13 @@ charts.forEach((chart) => {
   const borderColors = chart.getAttribute("chart-border-colors")
     ? JSON.parse(chart.getAttribute("chart-border-colors"))
     : [];
+  const showLegend = chart.getAttribute("chart-show-legend");
+  const chartUnit = chart.getAttribute("chart-unit");
+  const chartAriaLabel = chart.getAttribute("chart-aria-label");
+
+  // Set Aria Label for the canvas element
+  const canvas = chart.querySelector("canvas");
+  canvas.setAttribute("aria-label", chartAriaLabel);
 
   // Initialize Chart.js
   const ctx = chart.querySelector("canvas").getContext("2d");
@@ -74,13 +79,14 @@ charts.forEach((chart) => {
             size: 14,
           },
           formatter: function (value) {
-            return value + "%";
+            return value + chartUnit;
           },
           anchor: "center",
           align: "center",
           offset: 0,
         },
         legend: {
+          display: showLegend === "true",
           position: function (context) {
             const type = context.chart.config.type.toLowerCase();
             return type === "pie" ? "right" : "top";
@@ -96,9 +102,13 @@ charts.forEach((chart) => {
           callbacks: {
             label: function (context) {
               const value = context.raw;
-              return `${value}%`;
+              return `${value}${chartUnit}`;
             },
           },
+        },
+        title: {
+          display: false,
+          text: chartTitle,
         },
       },
     },
