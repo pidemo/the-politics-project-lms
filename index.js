@@ -116,10 +116,12 @@ charts.forEach((chart) => {
           display: showLegend === "true",
           position: function (context) {
             const type = context.chart.config.type.toLowerCase();
-            return type === "pie" ? "right" : "top";
+            return type === "pie" ? "right" : "bottom";
           },
+          align: "start",
           labels: {
             padding: 20,
+            position: "bottom",
             font: {
               size: 12,
             },
