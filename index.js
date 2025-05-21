@@ -1,6 +1,8 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
+console.log("test running");
+
 // setup with attributes
 const charts = document.querySelectorAll("[chart-title]");
 
@@ -104,6 +106,7 @@ charts.forEach((chart) => {
           font: {
             weight: "bold",
             size: 14,
+            family: "var(--_typography---paragraph-body--font)",
           },
           formatter: function (value) {
             return value + finalChartUnit;
@@ -124,6 +127,7 @@ charts.forEach((chart) => {
             position: "bottom",
             font: {
               size: 12,
+              family: "var(--_typography---paragraph-body--font)",
             },
           },
         },
