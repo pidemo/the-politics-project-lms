@@ -1,7 +1,34 @@
 // Register the plugin to all charts
 Chart.register(ChartDataLabels);
 
-console.log("test running");
+// Set global font defaults for all charts
+Chart.defaults.font.family = "OpenSans";
+Chart.defaults.font.size = 12;
+
+// Helper function to break long labels into multiple lines
+const labelMaxLength = 14;
+
+function breakLongLabel(label, maxLength) {
+  if (label.length <= maxLength) {
+    return label;
+  }
+
+  const words = label.split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  words.forEach((word) => {
+    if ((currentLine + word).length <= maxLength) {
+      currentLine += (currentLine ? " " : "") + word;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
 
 // setup with attributes
 const charts = document.querySelectorAll("[chart-title]");
@@ -82,68 +109,86 @@ charts.forEach((chart) => {
     });
   }
 
+  // Create chart options with conditional scales
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
+  // Only add scales for non-pie charts
+  if (chartType.toLowerCase() !== "pie") {
+    chartOptions.scales = {
+      x: {
+        ticks: {
+          maxRotation: 0, // Keep labels horizontal
+          minRotation: 0,
+          callback: function (value, index, ticks) {
+            const label = this.getLabelForValue(value);
+            return breakLongLabel(label, labelMaxLength);
+          },
+        },
+      },
+    };
+  }
+
+  // Add plugins configuration
+  chartOptions.plugins = {
+    datalabels: {
+      display: function (context) {
+        // Only apply to pie charts
+        if (context.chart.config.type.toLowerCase() !== "pie") return false;
+        const dataset = context.dataset.data;
+        const value = context.dataset.data[context.dataIndex];
+        const total = dataset.reduce((a, b) => a + b, 0);
+        const percent = (value / total) * 100;
+        return percent >= 6;
+      },
+      color: "#fff",
+      font: {
+        weight: "bold",
+      },
+      formatter: function (value) {
+        return value + finalChartUnit;
+      },
+      anchor: "center",
+      align: "center",
+      offset: 0,
+    },
+    legend: {
+      display: showLegend === "true",
+      position: function (context) {
+        const type = context.chart.config.type.toLowerCase();
+        return type === "pie" ? "right" : "bottom";
+      },
+      align: function (context) {
+        const type = context.chart.config.type.toLowerCase();
+        return type === "pie" ? "center" : "start";
+      },
+      labels: {
+        padding: 20,
+        position: "bottom",
+      },
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.raw;
+          return `${value}${finalChartUnit}`;
+        },
+      },
+    },
+    title: {
+      display: false,
+      text: chartTitle,
+    },
+  };
+
   new Chart(ctx, {
     type: chartType,
     data: {
       labels: labels,
       datasets: datasets,
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          display: function (context) {
-            // Only apply to pie charts
-            if (context.chart.config.type.toLowerCase() !== "pie") return false;
-            const dataset = context.dataset.data;
-            const value = context.dataset.data[context.dataIndex];
-            const total = dataset.reduce((a, b) => a + b, 0);
-            const percent = (value / total) * 100;
-            return percent >= 6;
-          },
-          color: "#fff",
-          font: {
-            weight: "bold",
-            size: 14,
-            family: "var(--_typography---paragraph-body--font)",
-          },
-          formatter: function (value) {
-            return value + finalChartUnit;
-          },
-          anchor: "center",
-          align: "center",
-          offset: 0,
-        },
-        legend: {
-          display: showLegend === "true",
-          position: function (context) {
-            const type = context.chart.config.type.toLowerCase();
-            return type === "pie" ? "right" : "bottom";
-          },
-          align: "start",
-          labels: {
-            padding: 20,
-            position: "bottom",
-            font: {
-              size: 12,
-              family: "var(--_typography---paragraph-body--font)",
-            },
-          },
-        },
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              const value = context.raw;
-              return `${value}${finalChartUnit}`;
-            },
-          },
-        },
-        title: {
-          display: false,
-          text: chartTitle,
-        },
-      },
-    },
+    options: chartOptions,
   });
 });

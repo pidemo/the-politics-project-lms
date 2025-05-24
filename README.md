@@ -96,7 +96,7 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - Responsive charts that maintain aspect ratio
 - Automatic data labels for pie charts (shows percentage or custom unit)
 - Custom legend position:
-  - For pie charts, the legend appears on the right
+  - For pie charts, the legend appears on the right and is vertically centered
   - For all other chart types, the legend appears at the bottom and is left-aligned
 - Show or hide the legend with a single attribute
 - Tooltip support showing percentage or custom unit values
@@ -104,6 +104,8 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - Automatic multiple bars per label based on data points array length
 - Accessible charts with ARIA labels
 - Chart title is not displayed on the chart itself by default (legend and tooltips only)
+- Automatic wrapping of long axis labels for better readability (max Length = 14 Characters)
+- Global font set to OpenSans for all chart elements, with a size of 12px
 
 ## Example Usage
 
@@ -165,5 +167,7 @@ Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so 
 - Use `chart-show-legend` to control the display of the chart legend
 - Use `chart-unit` to append a custom unit to all displayed values
 - For grouped/multi-dataset charts, use `chart-data-labels` to set custom labels for each dataset
-- For pie charts, the legend is on the right; for all other chart types, the legend is at the bottom and left-aligned
+- For pie charts, the legend is on the right and vertically centered; for all other chart types, the legend is at the bottom and left-aligned
 - The chart title is not displayed on the chart itself by default (only in the legend and tooltips)
+- All charts use the OpenSans font globally, with a font size of 12px
+- Long axis labels are automatically wrapped to a new line if they exceed 14 characters (you can adjust this in the code by changing the `labelMaxLength` constant)
