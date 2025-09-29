@@ -121,10 +121,12 @@ const setSurveyOptions = (form) => {
 const handleFormSubmission = () => {
   const quizForm = document.querySelector(CONFIG.selectors.form);
   const quizSubmit = document.querySelector(CONFIG.selectors.submit);
+
+  // If either the form or submit button is not found, do nothing
+  if (!quizForm || !quizSubmit) return;
+
   const formType = quizSubmit.getAttribute("target-type");
   const targetAtid = quizSubmit.getAttribute("target-atid");
-
-  if (!quizForm || !quizSubmit) return;
 
   if (formType === "survey") {
     removeUnusedFields(quizForm);
