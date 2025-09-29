@@ -558,6 +558,12 @@ const setupTrackingTriggers = () => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // make sure rich text links open in new tab
+  document.querySelectorAll(".rich-text a").forEach((link) => {
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer"); // safer for security/performance
+  });
+
   window.$memberstackDom.getCurrentMember().then((member) => {
     const completedModules = member?.data?.customFields["completed-modules"];
     const completedSubModules =
