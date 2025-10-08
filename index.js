@@ -23,6 +23,17 @@ function codeToRun() {
     },
   };
 
+  const setCourseBackLink = () => {
+    const courseBackLink = document.querySelectorAll("[data-course-slug]");
+    if (courseBackLink)
+      courseBackLink.forEach((link) => {
+        link.setAttribute(
+          "href",
+          `/courses/${link.getAttribute("data-course-slug")}`
+        );
+      });
+  };
+
   const revealAnswers = (removeRadios = false) => {
     const answers = document.querySelectorAll(".detailed-answer");
     answers.forEach((answer) => {
@@ -588,6 +599,7 @@ function codeToRun() {
       setupVisualProgress();
       setQuizOptions();
       handleFormSubmission();
+      setCourseBackLink();
       hidePageLoader();
     });
   });
