@@ -25,14 +25,12 @@ function codeToRun() {
 
   const setCourseBackLink = () => {
     const courseBackLink = document.querySelectorAll("[data-course-slug]");
-    console.log("courseBackLink: ", courseBackLink);
     if (courseBackLink)
       courseBackLink.forEach((link) => {
         link.setAttribute(
           "href",
           `/courses/${link.getAttribute("data-course-slug")}`
         );
-        console.log("link: ", link);
       });
   };
 
