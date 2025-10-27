@@ -1,5 +1,90 @@
 # the-politics-project-lms
 
+## LMS Client Script (index.js)
+
+This client script powers the LMS behaviors across course/module pages. It initializes after Memberstack is ready and wires up progress tracking, prerequisites, quiz/survey submission, and navigation helpers.
+
+### Prerequisites
+
+- Memberstack present on the page; the script runs after `memberstack.ready`.
+- Include the LMS client script (served via CDN):
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/index.min.js"
+  type="text/javascript"
+></script>
+```
+
+### Key Features
+
+- Progress tracking with visual bars for `module` and `sub-module`
+- Prerequisite gating (disables buttons/links until prerequisites are met)
+- Quiz and survey form handling (validations, submission, success/error UI)
+- Automatic next-item navigation and optional auto-complete
+- Member progress sync via webhooks
+- Confetti/celebration on completion milestones
+
+### Required/Supported Selectors & Attributes
+
+- Page metadata (on `<body>`):
+  - `page-atid` (string id of current item)
+  - `page-type` (e.g., `module`, `survey`)
+- Member fields:
+  - `#member-atid` (input containing current member ATID)
+- Visual progress:
+  - Wrapper: `[visual-progress-wrapper]` with `visual-progress-type="module"|"sub-module"`
+  - Children: `[visual-progress="progress-bar"]`, `[visual-progress="percentage"]`, `[visual-progress="confetti"]`
+  - Trackable items: `[data-progress="module"|"sub-module"]` with `id` matching target ATID; add class `is-complete` when completed
+- Prerequisites:
+  - Elements with `prerequisite-atid` and `prerequisite-type="module"|"sub-module"` (auto-disabled until the referenced item is complete)
+- Completion/Tracking triggers:
+  - Clickable elements with `[target-tracking="true"]`, and attributes `target-atid`, `target-type`
+  - Optional `target-success-text` to set label after completion
+  - Optional `target-auto-complete` (truthy) on `#complete-module-button` to append `?auto-complete` to its href
+- Quiz/Survey forms:
+  - Form: `#quiz-form`; Submit button: `#quiz-submit`
+  - Submit attributes: `target-type="quiz"|"survey"`, `target-atid`
+  - Surveys add: `target-stage="start"|"end"`, `target-course-atid`
+  - UI hooks: `#quiz-notification`, `#quiz-loader`
+  - Quiz building:
+    - Questions: `[data-question-atid]` with radio options found by `[data-parent-question-atid="QUESTION_ATID"]`
+    - Options contain `.radio-group[data-option-tf]`, `.w-radio-input`, `data-option-atid`, `data-option-name`
+    - Detailed answers use `.detailed-answer` (hidden on load, revealed on save)
+    - Optional container `#quiz-options-wrapper` is removed once options are nested
+  - Survey inputs: elements with `[data-input-name]` (names are applied automatically)
+- Navigation helpers:
+  - Prev/Next wrapper: `#prev-next` containing `[fs-cmsprevnext-element="next"] a`
+  - Redirect notice: `#redirection-notification`
+- Other hooks:
+  - Course back links: elements with `[data-course-slug]` → href becomes `/courses/<slug>`
+  - Page loader: `#page-loader` (removed once ready)
+  - Survey gating: `#disabled-overlay[disabled-atid]` and `#form-wrapper`
+  - Auto-complete button: `#module-complete-button` (clicked when `?auto-complete` is present)
+
+### Behaviors
+
+- On load (after Memberstack):
+  - Reads `completed-modules` and `completed-submodules` from member custom fields and applies state (adds `is-complete`, disables buttons, sets success text)
+  - Initializes visual progress, tracking triggers, prerequisites, prev/next navigation
+  - Prepares quiz/survey forms and sets submit button text based on stage
+  - Ensures rich-text links open in a new tab with `rel="noopener noreferrer"`
+  - If URL contains `?auto-complete`, auto-clicks `#module-complete-button`
+- On submit (quiz/survey):
+  - Validates required fields, shows loader, disables button
+  - Builds a formatted string and JSON payload (excluding internal fields) and posts to a webhook
+  - On success: updates visual progress, shows notifications, reveals answers (quiz), auto-redirects (survey), enables prerequisites, updates prev/next
+  - On error: shows error notification and resets UI state
+
+### Webhooks
+
+- Progress save: posts to a Make.com webhook with `memberATID`, `targetATID`, `targetType`
+- Quiz/Survey submit: posts JSON payload to a Make.com webhook
+
+Note: Replace webhook URLs with environment-specific values as needed.
+
+---
+
 # Chart Component Documentation
 
 This component allows you to create dynamic charts using Chart.js with a simple data attribute configuration system.
@@ -21,12 +106,12 @@ This component allows you to create dynamic charts using Chart.js with a simple 
 - The Actual Script to render all charts:
   ```html
   <script
-    src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/index.min.js"
+    src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/charts.min.js"
     type="text/javascript"
   ></script>
   ```
 
-Those 3 scripts are all bundled into a "Chart Scripts" component in Webflow, so you don't need to worry about getting the latest version.
+These 3 scripts are bundled into a "Chart Scripts" component in Webflow, so you don't need to worry about getting the latest version.
 
 ## Basic Install in Webflow
 
