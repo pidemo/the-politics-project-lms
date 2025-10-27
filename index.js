@@ -74,6 +74,11 @@ function codeToRun() {
     unusedFields.forEach((field) => field.remove());
   };
 
+  const autoCompleteTarget = () => {
+    const completeButton = document.querySelector("#module-complete-button");
+    if (completeButton) completeButton.click();
+  };
+
   const sendQuizNotification = (message, duration) => {
     const quizNotification = document.querySelector(
       CONFIG.selectors.notification
@@ -141,6 +146,12 @@ function codeToRun() {
     const targetAtid = quizSubmit.getAttribute("target-atid");
 
     if (formType === "survey") {
+      const surveyStage = quizSubmit.getAttribute("target-stage");
+      if (surveyStage === "end") {
+        quizSubmit.innerText = `Submit Answers & Finish Course`;
+      } else if (surveyStage === "start") {
+        quizSubmit.innerText = `Submit Answers & Start Course`;
+      }
       removeUnusedFields(quizForm);
       setSurveyOptions(quizForm);
     }
@@ -263,8 +274,6 @@ function codeToRun() {
       formData.formData = formattedString;
       formData.formDataJson = JSON.stringify(filteredFormData);
 
-      // console.log(formData);
-
       const hookNoPass =
         "https://hook.eu2.make.com/34ctid9hval5iv8ltk72lwnmgysvzhu4";
 
@@ -286,16 +295,29 @@ function codeToRun() {
             throw new Error("Response was not successful");
           }
           updateVisualProgress(targetAtid, targetType);
+
           // Hide Loader
           showFormLoader(false);
-          // Show notification
-          sendQuizNotification("Answers saved successfully!", 3000);
-          // reveal answers
-          if (formType === "quiz") revealAnswers();
+
+          // If survey, set notif & auto redirect to next module after 3 seconds
+          if (formType === "survey") {
+            sendQuizNotification("You will be redirected shortly..", 3000);
+            navigateNextItem(3000);
+          }
+
+          // if quiz, set notif & reveal answers
+          if (formType === "quiz") {
+            sendQuizNotification("Answers saved successfully!", 3000);
+            revealAnswers();
+          }
           setButtonSuccessText(quizSubmit);
           // enable prerequisites
           enablePrerequisites(targetAtid);
           enablePrevNext();
+
+          if (formType === "quiz") {
+            setAutoCompleteLink();
+          }
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -395,7 +417,6 @@ function codeToRun() {
     progressBar.style.width = `${progressPercentage}%`;
     percentage.innerText = progressPercentage;
     if (progressPercentage === 100) {
-      console.log("Progress is 100%", withConfettiTF);
       confetti.classList.remove("is-hidden-onload");
       if (withConfettiTF) confettis();
       const pageType = document.body.getAttribute("page-type");
@@ -426,7 +447,6 @@ function codeToRun() {
     const visualTracker = document.querySelector(
       `[visual-progress-type="${targetType}"]`
     );
-    console.log("visualTracker", visualTracker);
     if (visualTracker) processVisualProgress(visualTracker, true);
   };
 
@@ -510,10 +530,12 @@ function codeToRun() {
       enablePrevNext();
       if (pageType === "survey") {
         const veil = document.querySelector("#disabled-overlay");
-        if (veil) {
+        const form = document.querySelector("#form-wrapper");
+        if (veil && form) {
           const targetAtid = veil.getAttribute("disabled-atid");
           if (modulesIdsArray?.includes(targetAtid)) {
-            veil.classList.remove("is-hidden");
+            veil.classList.remove("is-hidden-onload");
+            form.classList.add("is-hidden");
           }
         }
       }
@@ -522,7 +544,46 @@ function codeToRun() {
 
   const enablePrevNext = () => {
     const prevNext = document.querySelector("#prev-next");
-    if (prevNext) prevNext.classList.remove("is-hidden-onload");
+    if (prevNext) {
+      const link = prevNext.querySelector('[fs-cmsprevnext-element="next"] a');
+      if (link) prevNext.classList.remove("is-hidden-onload");
+    }
+  };
+
+  const navigateNextItem = (delay = 0) => {
+    const redirectionNotification = document.querySelector(
+      "#redirection-notification"
+    );
+    if (redirectionNotification)
+      redirectionNotification.classList.remove("is-hidden-onload");
+
+    setTimeout(() => {
+      const prevNext = document.querySelector("#prev-next");
+      if (prevNext) {
+        const nextItemLink = prevNext.querySelector("a");
+        if (nextItemLink) {
+          const nextItemHref = nextItemLink.getAttribute("href");
+          window.location.href = nextItemHref;
+        }
+      }
+    }, delay);
+  };
+
+  const setAutoCompleteLink = () => {
+    const completeModuleButton = document.querySelector(
+      "#complete-module-button"
+    );
+    if (completeModuleButton) {
+      const isAutoComplete = completeModuleButton.getAttribute(
+        "target-auto-complete"
+      );
+      if (isAutoComplete)
+        completeModuleButton.href = !completeModuleButton.href.includes(
+          "?auto-complete"
+        )
+          ? completeModuleButton.href + "?auto-complete"
+          : completeModuleButton.href;
+    }
   };
 
   const saveProgressRequest = (element) => {
@@ -549,7 +610,6 @@ function codeToRun() {
       })
 
       .then(() => {
-        console.log(targetType);
         updateVisualProgress(targetAtid, targetType);
 
         disableButton(element);
@@ -558,6 +618,7 @@ function codeToRun() {
         // enable prerequisites
         enablePrerequisites(targetAtid);
         enablePrevNext();
+        navigateNextItem(3000);
 
         if (targetType === "module") confettis();
       })
@@ -598,8 +659,12 @@ function codeToRun() {
       setupTrackingTriggers();
       setupVisualProgress();
       setQuizOptions();
+      setAutoCompleteLink();
       handleFormSubmission();
       setCourseBackLink();
+      // Check for auto-complete in URL params and execute autoCompleteTarget if present
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("auto-complete")) autoCompleteTarget();
       hidePageLoader();
     });
   });
