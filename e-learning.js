@@ -17,7 +17,7 @@ function codeToRun() {
           const button = tag
             .closest(".button-row")
             .querySelector(".component-button-text");
-          if (button) button.innerText = "Continue Leaning";
+          if (button) button.innerText = "Continue Learning";
         });
       });
       completedCourses.forEach((course) => {
