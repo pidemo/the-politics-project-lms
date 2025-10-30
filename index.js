@@ -560,10 +560,19 @@ function codeToRun() {
     setTimeout(() => {
       const prevNext = document.querySelector("#prev-next");
       if (prevNext) {
-        const nextItemLink = prevNext.querySelector("a");
+        const nextItemLink = prevNext.querySelector(
+          '[fs-cmsprevnext-element="next"] a'
+        );
         if (nextItemLink) {
           const nextItemHref = nextItemLink.getAttribute("href");
           window.location.href = nextItemHref;
+        } else {
+          // if no next item found, means it was last item, so we go back to course page
+          const courseLink = document.querySelector("a.breadcrumb-link");
+          if (courseLink) {
+            const courseHref = courseLink.getAttribute("href");
+            window.location.href = courseHref + "?confettis";
+          }
         }
       }
     }, delay);
@@ -639,6 +648,18 @@ function codeToRun() {
     });
   };
 
+  const checkParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    // Check for auto-complete in URL params and execute autoCompleteTarget if present
+    if (urlParams.has("auto-complete")) {
+      autoCompleteTarget();
+    }
+    // Check for confettis in URL params and execute confettis if present
+    if (urlParams.has("confettis")) {
+      confettis();
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", () => {
     // make sure rich text links open in new tab
     document.querySelectorAll(".rich-text a").forEach((link) => {
@@ -662,9 +683,7 @@ function codeToRun() {
       setAutoCompleteLink();
       handleFormSubmission();
       setCourseBackLink();
-      // Check for auto-complete in URL params and execute autoCompleteTarget if present
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has("auto-complete")) autoCompleteTarget();
+      checkParams();
       hidePageLoader();
     });
   });
