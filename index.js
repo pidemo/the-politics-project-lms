@@ -302,7 +302,7 @@ function codeToRun() {
           // If survey, set notif & auto redirect to next module after 3 seconds
           if (formType === "survey") {
             sendQuizNotification("You will be redirected shortly..", 3000);
-            navigateNextItem(3000);
+            navigateNextItem(2000);
           }
 
           // if quiz, set notif & reveal answers
@@ -627,7 +627,7 @@ function codeToRun() {
         // enable prerequisites
         enablePrerequisites(targetAtid);
         enablePrevNext();
-        navigateNextItem(3000);
+        navigateNextItem(2000);
 
         if (targetType === "module") confettis();
       })
