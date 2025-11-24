@@ -1,5 +1,3 @@
-console.log("Running local script");
-
 const programmesBackLinksWrapper = document.querySelector(
   "#related-programmes"
 );
@@ -20,7 +18,6 @@ const setBackLinks = (element, path) => {
 
   // Remove parent if no slugs or names
   if (slugsElement.innerHTML === "" || namesElement.innerHTML === "") {
-    console.log("Removing element", element);
     element.remove();
     return;
   }
