@@ -1,3 +1,5 @@
+console.log("Running local script");
+
 const programmesBackLinksWrapper = document.querySelector(
   "#related-programmes"
 );
@@ -9,13 +11,19 @@ const setBackLinks = (element, path) => {
   // Get slugs and names elements
   const slugsElement = element.querySelector(".backlinks-slugs");
   const namesElement = element.querySelector(".backlinks-names");
-  if (!slugsElement || !namesElement) return;
+  const template = element.querySelector(".tag");
+  if (!slugsElement || !namesElement || !template) return;
 
   // Get slugs and names
   const slugs = slugsElement.innerHTML.split(",");
   const names = namesElement.innerHTML.split(",");
-  const template = element.querySelector(".tag");
-  if (!template || !slugs || !names) return;
+
+  // Remove parent if no slugs or names
+  if (slugsElement.innerHTML === "" || namesElement.innerHTML === "") {
+    console.log("Removing element", element);
+    element.remove();
+    return;
+  }
 
   // Create backlinks
   slugs.forEach((slug, index) => {
