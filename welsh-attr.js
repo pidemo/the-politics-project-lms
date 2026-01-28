@@ -47,13 +47,33 @@ function applyBypassAttributes() {
   // Find all elements where the CMS field "notranslate" is "true"
   const nodesToExclude = document.querySelectorAll('[data-notranslate="true"]');
 
+  if (!nodesToExclude || nodesToExclude.length === 0) {
+    console.log("Weglot: No [data-notranslate=\"true\"] elements found to bypass.");
+    return;
+  }
+
   nodesToExclude.forEach((node) => {
     // Apply official Weglot bypass attribute
     node.setAttribute("data-wg-notranslate", "");
   });
 
-  if (nodesToExclude.length > 0) {
-    console.log(`Weglot: Applied bypass to ${nodesToExclude.length} elements.`);
+  console.log(`Weglot: Applied bypass to ${nodesToExclude.length} elements.`, nodesToExclude);
+}
+
+// Apply bypass attributes as early as possible, independent of Weglot
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function () {
+    try {
+      applyBypassAttributes();
+    } catch (e) {
+      console.error("Error applying bypass attributes on DOMContentLoaded:", e);
+    }
+  });
+} else {
+  try {
+    applyBypassAttributes();
+  } catch (e) {
+    console.error("Error applying bypass attributes on ready document:", e);
   }
 }
 
@@ -70,6 +90,12 @@ function handleAutoRedirect() {
   if (isWelsh === "true" || isWelsh === true) {
     // Only switch if we aren't already in Welsh ('cy')
     if (Weglot.getCurrentLang() !== "cy") {
+      // Ensure bypass attributes are set right before switching
+      try {
+        applyBypassAttributes();
+      } catch (e) {
+        console.error("Error applying bypass attributes before redirect:", e);
+      }
       Weglot.switchTo("cy");
     }
   }

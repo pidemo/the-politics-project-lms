@@ -24,7 +24,13 @@ function runCustomLogic() {
   // Option 2: Auto redirect to Welsh page
   // Check the attribute immediately
   const isWelsh = document.body.getAttribute("data-is-welsh");
-  // Only switch if `testing=true` is in the URL
+
+  // If URL contains ?noredirect, skip switching language
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("noredirect")) {
+    return;
+  }
+
   if (isWelsh === "true" || isWelsh === true) {
     Weglot.switchTo("cy");
   }
