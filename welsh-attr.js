@@ -60,6 +60,12 @@ function applyBypassAttributes() {
 function handleAutoRedirect() {
   const isWelsh = document.body.getAttribute("data-is-welsh");
 
+  // If URL contains ?noredirect, skip switching language
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("noredirect")) {
+    return;
+  }
+
   // Check if CMS field says this page should be Welsh
   if (isWelsh === "true" || isWelsh === true) {
     // Only switch if we aren't already in Welsh ('cy')
