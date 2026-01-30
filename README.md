@@ -24,12 +24,112 @@ This client script powers the LMS behaviors across course/module pages. It initi
 - Automatic next-item navigation and optional auto-complete
 - Member progress sync via webhooks
 - Confetti/celebration on completion milestones
+- **Internationalization (i18n) support** for English and Welsh languages
+
+### Internationalization (i18n)
+
+The script supports bilingual text (English and Welsh) for all dynamically set text strings. Text can be customized via HTML attributes on specific elements, allowing content managers to update text without modifying JavaScript code.
+
+#### How It Works
+
+1. **Language Detection**: The script checks the `data-is-welsh` attribute on the `<body>` element:
+   - If `data-is-welsh="true"`, Welsh text is used
+   - Otherwise, English text is used
+
+2. **Text Resolution Priority**:
+   - **Priority 1**: Element attribute with language suffix (e.g., `text-saving-cy` for Welsh, `text-saving-en` for English)
+   - **Priority 2**: Base element attribute (e.g., `text-saving`) for backward compatibility
+   - **Priority 3**: Default text from JavaScript configuration object
+
+3. **Where to Add Attributes**:
+   - **Submit Button** (`#quiz-submit`): For button state text (initial text, saving, error)
+   - **Notification Element** (`#quiz-notification`): For notification messages
+   - **Any Button Element**: For final/success text after completion (`target-final-text-*`)
+
+#### Text Strings Reference
+
+All text strings that can be customized via attributes:
+
+| Text String | Default English | Default Welsh | Recommended Attribute Name | Element Location |
+|------------|----------------|---------------|---------------------------|------------------|
+| **Submit Button - Initial Text** | "Submit Answers & Finish Course" (end) / "Submit Answers & Start Course" (start) | "[CY] Submit Answers & Finish Course" / "[CY] Submit Answers & Start Course" | `target-initial-text` | `#quiz-submit` |
+| **Submit Button - Saving** | "Saving Answers..." | "[CY] Saving Answers..." | `text-saving` | `#quiz-submit` |
+| **Submit Button - Error** | "Error.." | "[CY] Error.." | `text-error` | `#quiz-submit` |
+| **Notification - Validation Error** | "Please fill out all required fields!" | "[CY] Please fill out all required fields!" | `text-validation-error` | `#quiz-notification` |
+| **Notification - Redirecting** | "You will be redirected shortly.." | "[CY] You will be redirected shortly.." | `text-redirecting` | `#quiz-notification` |
+| **Notification - Success** | "Answers saved successfully!" | "[CY] Answers saved successfully!" | `text-answers-saved` | `#quiz-notification` |
+| **Notification - Save Error** | "There was a problem saving your Answers.. Please try again!" | "[CY] There was a problem saving your Answers.. Please try again!" | `text-save-error` | `#quiz-notification` |
+| **Button Final/Success Text** | (from `target-final-text` attribute) | (from `target-final-text` attribute) | `target-final-text` | Any button with `target-final-text` |
+
+#### Attribute Naming Convention
+
+For each text string, use the following pattern:
+
+- **English**: `[attribute-name]-en` (e.g., `text-finish-en`)
+- **Welsh**: `[attribute-name]-cy` (e.g., `text-finish-cy`)
+- **Fallback**: `[attribute-name]` (e.g., `text-finish`) - used if language-specific attributes are not found
+
+#### Examples
+
+**Example 1: Customizing Submit Button Text**
+
+```html
+<!-- Submit button with custom English and Welsh text -->
+<button id="quiz-submit" 
+        target-initial-text-en="Submit Answers & Finish Course"
+        target-initial-text-cy="Cyflwyno Atebion a Gorffen y Cwrs"
+        target-final-text-en="Answers Submitted!"
+        target-final-text-cy="Atebion wedi'u cyflwyno!"
+        text-saving-en="Saving..."
+        text-saving-cy="Arbed..."
+        text-error-en="Oops! Try again"
+        text-error-cy="Wps! Ceisiwch eto">
+  Submit
+</button>
+```
+
+**Example 2: Customizing Notification Messages**
+
+```html
+<!-- Notification element with custom messages -->
+<div id="quiz-notification"
+     text-validation-error-en="Please complete all fields"
+     text-validation-error-cy="Cwblhewch yr holl feysydd"
+     text-redirecting-en="Redirecting..."
+     text-redirecting-cy="Ailgyfeirio..."
+     text-answers-saved-en="All done!"
+     text-answers-saved-cy="Wedi gorffen!"
+     text-save-error-en="Something went wrong"
+     text-save-error-cy="Aeth rhywbeth o'i le">
+</div>
+```
+
+**Example 3: Customizing Button Final/Success Text**
+
+```html
+<!-- Button with custom final text for both languages -->
+<button target-final-text-en="Completed ✓"
+         target-final-text-cy="Wedi cwblhau ✓"
+         target-atid="MODULE_123"
+         target-type="module">
+  Mark as Complete
+</button>
+```
+
+#### Notes
+
+- If you only provide the base attribute (e.g., `target-initial-text`), it will be used for both languages
+- The `target-final-text` attribute replaces the older `target-success-text` attribute (which is still supported for backward compatibility)
+- If you provide language-specific attributes, they take precedence over the base attribute
+- The Welsh placeholders (`[CY]`) in the default text should be replaced with actual Welsh translations
+- All text attributes are optional - if not provided, the script falls back to the default English/Welsh text defined in the JavaScript configuration
 
 ### Required/Supported Selectors & Attributes
 
 - Page metadata (on `<body>`):
   - `page-atid` (string id of current item)
   - `page-type` (e.g., `module`, `survey`)
+  - `data-is-welsh` (set to `"true"` for Welsh language pages - enables Welsh text strings)
 - Member fields:
   - `#member-atid` (input containing current member ATID)
 - Visual progress:
@@ -40,13 +140,16 @@ This client script powers the LMS behaviors across course/module pages. It initi
   - Elements with `prerequisite-atid` and `prerequisite-type="module"|"sub-module"` (auto-disabled until the referenced item is complete)
 - Completion/Tracking triggers:
   - Clickable elements with `[target-tracking="true"]`, and attributes `target-atid`, `target-type`
-  - Optional `target-success-text` to set label after completion
+  - Optional `target-final-text` to set label after completion (supports `target-final-text-en` and `target-final-text-cy` for i18n)
+  - Optional `target-success-text` (deprecated, use `target-final-text` instead) for backward compatibility
   - Optional `target-auto-complete` (truthy) on `#complete-module-button` to append `?auto-complete` to its href
 - Quiz/Survey forms:
   - Form: `#quiz-form`; Submit button: `#quiz-submit`
   - Submit attributes: `target-type="quiz"|"survey"`, `target-atid`
   - Surveys add: `target-stage="start"|"end"`, `target-course-atid`
   - UI hooks: `#quiz-notification`, `#quiz-loader`
+  - **i18n attributes on `#quiz-submit`**: `target-initial-text`, `text-saving`, `text-error` (with `-en`/`-cy` suffixes)
+  - **i18n attributes on `#quiz-notification`**: `text-validation-error`, `text-redirecting`, `text-answers-saved`, `text-save-error` (with `-en`/`-cy` suffixes)
   - Quiz building:
     - Questions: `[data-question-atid]` with radio options found by `[data-parent-question-atid="QUESTION_ATID"]`
     - Options contain `.radio-group[data-option-tf]`, `.w-radio-input`, `data-option-atid`, `data-option-name`

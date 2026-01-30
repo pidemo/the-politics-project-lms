@@ -1,3 +1,5 @@
+console.log("index.js loaded");
+
 function codeToRun() {
   const CONFIG = {
     hook: "4asr83ylmqj6mowy34uc18jdg8y2ot8a",
@@ -23,13 +25,79 @@ function codeToRun() {
     },
   };
 
+  // Text defaults for internationalization (English and Welsh)
+  const TEXT_DEFAULTS = {
+    submitStart: {
+      en: "Submit Answers & Start Course",
+      cy: "Cyflwyno atebion & dechrau'r cwrs",
+    },
+    submitFinish: {
+      en: "Submit Answers & Finish Course",
+      cy: "[CY] Submit Answers & Finish Course",
+    },
+    saving: {
+      en: "Saving Answers...",
+      cy: "Arbed atebion…",
+    },
+    error: {
+      en: "Error..",
+      cy: "[CY] Error..",
+    },
+    validationError: {
+      en: "Please fill out all required fields!",
+      cy: "Atebwch bob cwestiwn, os gwelwch yn dda!",
+    },
+    redirecting: {
+      en: "You will be redirected shortly..",
+      cy: "Byddwch yn cael eich allgyfeirio yn fuan..",
+    },
+    answersSaved: {
+      en: "Answers saved successfully!",
+      cy: "Atebion wedi’u harbed!",
+    },
+    saveError: {
+      en: "There was a problem saving your Answers.. Please try again!",
+      cy: "[CY] There was a problem saving your Answers.. Please try again!",
+    },
+  };
+
+  // Helper function to get current language
+  const getLanguage = () => {
+    const isWelsh = document.body.getAttribute("data-is-welsh");
+    return isWelsh === "true" || isWelsh === true ? "cy" : "en";
+  };
+
+  // Helper function to get text with attribute priority
+  // Priority: 1) element attribute with language suffix, 2) element base attribute, 3) TEXT_DEFAULTS
+  const getText = (element, attributeBase, configKey) => {
+    if (!element) {
+      const lang = getLanguage();
+      return TEXT_DEFAULTS[configKey]?.[lang] || "";
+    }
+
+    const lang = getLanguage();
+    const langAttribute = `${attributeBase}-${lang}`;
+    const baseAttribute = attributeBase;
+
+    // Priority 1: Check for language-specific attribute (e.g., text-saving-cy)
+    const langValue = element.getAttribute(langAttribute);
+    if (langValue) return langValue;
+
+    // Priority 2: Check for base attribute (backward compatibility)
+    const baseValue = element.getAttribute(baseAttribute);
+    if (baseValue) return baseValue;
+
+    // Priority 3: Fallback to TEXT_DEFAULTS
+    return TEXT_DEFAULTS[configKey]?.[lang] || "";
+  };
+
   const setCourseBackLink = () => {
     const courseBackLink = document.querySelectorAll("[data-course-slug]");
     if (courseBackLink)
       courseBackLink.forEach((link) => {
         link.setAttribute(
           "href",
-          `/courses/${link.getAttribute("data-course-slug")}`
+          `/courses/${link.getAttribute("data-course-slug")}`,
         );
       });
   };
@@ -45,7 +113,7 @@ function codeToRun() {
       const optionState = option.getAttribute("data-option-tf");
       const optionChildRadio = option.querySelector(".w-radio-input");
       const isChecked = optionChildRadio.classList.contains(
-        "w--redirected-checked"
+        "w--redirected-checked",
       );
       if (optionState === "true") {
         // always show correct state for correct answer
@@ -81,7 +149,7 @@ function codeToRun() {
 
   const sendQuizNotification = (message, duration) => {
     const quizNotification = document.querySelector(
-      CONFIG.selectors.notification
+      CONFIG.selectors.notification,
     );
     quizNotification.textContent = message;
     quizNotification.classList.remove("is-hidden-onload");
@@ -99,7 +167,7 @@ function codeToRun() {
       const questionAtid = question.getAttribute("data-question-atid");
       const questionName = question.getAttribute("data-question-name");
       const options = document.querySelectorAll(
-        `[data-parent-question-atid="${questionAtid}"]`
+        `[data-parent-question-atid="${questionAtid}"]`,
       );
 
       // Process and append only the options that will be nested
@@ -148,9 +216,17 @@ function codeToRun() {
     if (formType === "survey") {
       const surveyStage = quizSubmit.getAttribute("target-stage");
       if (surveyStage === "end") {
-        quizSubmit.innerText = `Submit Answers & Finish Course`;
+        quizSubmit.innerText = getText(
+          quizSubmit,
+          "text-final",
+          "submitFinish",
+        );
       } else if (surveyStage === "start") {
-        quizSubmit.innerText = `Submit Answers & Start Course`;
+        quizSubmit.innerText = getText(
+          quizSubmit,
+          "text-initial",
+          "submitStart",
+        );
       }
       removeUnusedFields(quizForm);
       setSurveyOptions(quizForm);
@@ -167,14 +243,20 @@ function codeToRun() {
 
       // Check form validity before proceeding
       if (!quizForm.checkValidity()) {
-        sendQuizNotification("Please fill out all required fields!", 3000);
+        const quizNotification = document.querySelector(
+          CONFIG.selectors.notification,
+        );
+        sendQuizNotification(
+          getText(quizNotification, "text-validation-error", "validationError"),
+          3000,
+        );
         return;
       }
 
       // Disable submit button to prevent double submission
       disableButton(quizSubmit);
       showFormLoader(true);
-      quizSubmit.innerText = "Saving Answers...";
+      quizSubmit.innerText = getText(quizSubmit, "text-saving", "saving");
 
       // get all form elements
       const formElements = quizForm.elements;
@@ -235,7 +317,7 @@ function codeToRun() {
           // Handle select multiple
           else if (element.type === "select-multiple") {
             const selectedValues = Array.from(element.selectedOptions).map(
-              (option) => option.value
+              (option) => option.value,
             );
             formData[element.name] = selectedValues;
           }
@@ -301,13 +383,25 @@ function codeToRun() {
 
           // If survey, set notif & auto redirect to next module after 3 seconds
           if (formType === "survey") {
-            sendQuizNotification("You will be redirected shortly..", 3000);
+            const quizNotification = document.querySelector(
+              CONFIG.selectors.notification,
+            );
+            sendQuizNotification(
+              getText(quizNotification, "text-redirect", "redirecting"),
+              3000,
+            );
             navigateNextItem(2000);
           }
 
           // if quiz, set notif & reveal answers
           if (formType === "quiz") {
-            sendQuizNotification("Answers saved successfully!", 3000);
+            const quizNotification = document.querySelector(
+              CONFIG.selectors.notification,
+            );
+            sendQuizNotification(
+              getText(quizNotification, "text-success", "answersSaved"),
+              3000,
+            );
             revealAnswers();
           }
           setButtonSuccessText(quizSubmit);
@@ -323,11 +417,14 @@ function codeToRun() {
           console.error("Error:", error);
           // Hide Loader
           showFormLoader(false);
-          quizSubmit.innerText = "Error..";
+          quizSubmit.innerText = getText(quizSubmit, "text-error", "error");
           // Show notification
+          const quizNotification = document.querySelector(
+            CONFIG.selectors.notification,
+          );
           sendQuizNotification(
-            "There was a problem saving your Answers.. Please try again!",
-            3000
+            getText(quizNotification, "text-error", "saveError"),
+            3000,
           );
         });
     });
@@ -379,7 +476,7 @@ function codeToRun() {
           {
             duration: duration,
             easing: "ease-out",
-          }
+          },
         );
 
         // Remove particle after animation
@@ -390,28 +487,28 @@ function codeToRun() {
 
   const processVisualProgress = (element, withConfettiTF) => {
     const confetti = element.querySelector(
-      CONFIG.selectors.visualProgressConfetti
+      CONFIG.selectors.visualProgressConfetti,
     );
     const percentage = element.querySelector(
-      CONFIG.selectors.visualProgressPercentage
+      CONFIG.selectors.visualProgressPercentage,
     );
     const progressBar = element.querySelector(
-      CONFIG.selectors.visualProgressBar
+      CONFIG.selectors.visualProgressBar,
     );
     const type = element.getAttribute(
-      CONFIG.selectors.visualProgressTypeAttribute
+      CONFIG.selectors.visualProgressTypeAttribute,
     );
 
     const totalItems = document.querySelectorAll(`[data-progress="${type}"]`);
     const totalCount = totalItems.length;
 
     const completedItems = document.querySelectorAll(
-      `[data-progress="${type}"].is-complete`
+      `[data-progress="${type}"].is-complete`,
     );
     const completedCount = completedItems.length;
 
     const progressPercentage = Number(
-      ((completedCount / totalCount) * 100).toFixed(2)
+      ((completedCount / totalCount) * 100).toFixed(2),
     );
 
     progressBar.style.width = `${progressPercentage}%`;
@@ -423,7 +520,7 @@ function codeToRun() {
       if (type === "sub-module" && pageType === "module") {
         const pageAtid = document.body.getAttribute("page-atid");
         const completeButton = document.querySelector(
-          `[target-atid="${pageAtid}"][target-type="module"]`
+          `[target-atid="${pageAtid}"][target-type="module"]`,
         );
         completeButton.classList.remove("is-hidden-onload", "is-disabled");
       }
@@ -432,7 +529,7 @@ function codeToRun() {
 
   const setupVisualProgress = () => {
     const visualTrackers = document.querySelectorAll(
-      CONFIG.selectors.visualProgressWrapper
+      CONFIG.selectors.visualProgressWrapper,
     );
     visualTrackers.forEach(function (tracker) {
       processVisualProgress(tracker, false);
@@ -445,7 +542,7 @@ function codeToRun() {
 
     // also need to update visual progress bar
     const visualTracker = document.querySelector(
-      `[visual-progress-type="${targetType}"]`
+      `[visual-progress-type="${targetType}"]`,
     );
     if (visualTracker) processVisualProgress(visualTracker, true);
   };
@@ -465,13 +562,51 @@ function codeToRun() {
   };
 
   const setButtonSuccessText = (element) => {
-    const completedText = element.getAttribute("target-success-text");
-    if (completedText) element.innerText = completedText;
+    const lang = getLanguage();
+    // Priority 1: Check for language-specific attribute (e.g., text-success-cy)
+    const langAttribute = `text-success-${lang}`;
+    const langValue = element.getAttribute(langAttribute);
+    if (langValue) {
+      element.innerText = langValue;
+      return;
+    }
+    // Priority 2: Check for English-specific attribute
+    const enValue = element.getAttribute("text-success-en");
+    if (enValue) {
+      element.innerText = enValue;
+      return;
+    }
+    // Priority 3: Fallback to old attribute names (backward compatibility)
+    const oldFinalLangValue = element.getAttribute(`target-final-text-${lang}`);
+    if (oldFinalLangValue) {
+      element.innerText = oldFinalLangValue;
+      return;
+    }
+    const oldFinalEnValue = element.getAttribute("target-final-text-en");
+    if (oldFinalEnValue) {
+      element.innerText = oldFinalEnValue;
+      return;
+    }
+    const oldSuccessLangValue = element.getAttribute(
+      `target-success-text-${lang}`,
+    );
+    if (oldSuccessLangValue) {
+      element.innerText = oldSuccessLangValue;
+      return;
+    }
+    const oldSuccessEnValue = element.getAttribute("target-success-text-en");
+    if (oldSuccessEnValue) {
+      element.innerText = oldSuccessEnValue;
+      return;
+    }
+    // Priority 4: Fallback to base attribute (backward compatibility)
+    const baseValue = element.getAttribute("target-success-text");
+    if (baseValue) element.innerText = baseValue;
   };
 
   const setupPrerequsites = (modulesIdsArray, subModulesIdsArray) => {
     const links = document.querySelectorAll(
-      '[prerequisite-atid]:not([prerequisite-atid=""])'
+      '[prerequisite-atid]:not([prerequisite-atid=""])',
     );
     links.forEach((element) => {
       const prerequisiteAtid = element.getAttribute("prerequisite-atid");
@@ -488,7 +623,7 @@ function codeToRun() {
 
   const enablePrerequisites = (targetAtid) => {
     const links = document.querySelectorAll(
-      `[prerequisite-atid="${targetAtid}"]`
+      `[prerequisite-atid="${targetAtid}"]`,
     );
     links.forEach((element) => {
       enableButton(element);
@@ -520,10 +655,10 @@ function codeToRun() {
 
   const pageCompletedLoader = (modulesIdsArray) => {
     const pageAtid = document.body.getAttribute(
-      CONFIG.selectors.pageAtidAttribute
+      CONFIG.selectors.pageAtidAttribute,
     );
     const pageType = document.body.getAttribute(
-      CONFIG.selectors.pageTypeAttribute
+      CONFIG.selectors.pageTypeAttribute,
     );
 
     if (modulesIdsArray?.includes(pageAtid)) {
@@ -552,7 +687,7 @@ function codeToRun() {
 
   const navigateNextItem = (delay = 0) => {
     const redirectionNotification = document.querySelector(
-      "#redirection-notification"
+      "#redirection-notification",
     );
     if (redirectionNotification)
       redirectionNotification.classList.remove("is-hidden-onload");
@@ -561,7 +696,7 @@ function codeToRun() {
       const prevNext = document.querySelector("#prev-next");
       if (prevNext) {
         const nextItemLink = prevNext.querySelector(
-          '[fs-cmsprevnext-element="next"] a'
+          '[fs-cmsprevnext-element="next"] a',
         );
         if (nextItemLink) {
           const nextItemHref = nextItemLink.getAttribute("href");
@@ -580,15 +715,15 @@ function codeToRun() {
 
   const setAutoCompleteLink = () => {
     const completeModuleButton = document.querySelector(
-      "#complete-module-button"
+      "#complete-module-button",
     );
     if (completeModuleButton) {
       const isAutoComplete = completeModuleButton.getAttribute(
-        "target-auto-complete"
+        "target-auto-complete",
       );
       if (isAutoComplete)
         completeModuleButton.href = !completeModuleButton.href.includes(
-          "?auto-complete"
+          "?auto-complete",
         )
           ? completeModuleButton.href + "?auto-complete"
           : completeModuleButton.href;
@@ -599,7 +734,7 @@ function codeToRun() {
     const targetAtid = element.getAttribute("target-atid");
     const targetType = element.getAttribute("target-type");
     const memberAtid = document.querySelector(
-      CONFIG.selectors.memberAtid
+      CONFIG.selectors.memberAtid,
     ).value;
 
     const url = `https://hook.eu2.make.com/${CONFIG.hook}?memberATID=${memberAtid}&targetATID=${targetAtid}&targetType=${targetType}`;
@@ -638,7 +773,7 @@ function codeToRun() {
 
   const setupTrackingTriggers = () => {
     const trackingTriggers = document.querySelectorAll(
-      CONFIG.selectors.trackingTriggers
+      CONFIG.selectors.trackingTriggers,
     );
 
     trackingTriggers.forEach((element) => {
