@@ -25,7 +25,7 @@ function codeToRun() {
     },
   };
 
-  // Text defaults for internationalization (English and Welsh)
+  // Text defaults for internationalization (English and Welsh) - to finish
   const TEXT_DEFAULTS = {
     submitStart: {
       en: "Submit Answers & Start Course",
