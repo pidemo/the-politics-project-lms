@@ -686,50 +686,51 @@ function codeToRun() {
   };
 
   const navigateNextItem = (delay = 0) => {
-    setTimeout(() => {
-      const prevNext = document.querySelector("#prev-next");
-      if (prevNext) {
-        const nextItemLink = prevNext.querySelector(
-          '[fs-cmsprevnext-element="next"] a',
-        );
-        
-        // Check if we'll actually redirect before showing notification
-        let willRedirect = false;
-        let redirectHref = null;
-        
-        if (nextItemLink) {
-          willRedirect = true;
-          redirectHref = nextItemLink.getAttribute("href");
-        } else {
-          // if no next item found, check if we should redirect to course page
-          // Skip redirect on Welsh pages if links aren't found (likely Finsweet initialization issue)
-          const isWelsh = document.body.getAttribute("data-is-welsh");
-          if (isWelsh === "true" || isWelsh === true) {
-            // Don't redirect on Welsh pages if links aren't found
-            console.warn("No next link found on Welsh page - skipping redirect to avoid navigation issues");
-            return;
-          }
-          
-          // For non-Welsh pages, redirect to course page if no next item found
-          const courseLink = document.querySelector("a.breadcrumb-link");
-          if (courseLink) {
-            willRedirect = true;
-            redirectHref = courseLink.getAttribute("href") + "?confettis";
-          }
+    const prevNext = document.querySelector("#prev-next");
+    if (prevNext) {
+      const nextItemLink = prevNext.querySelector(
+        '[fs-cmsprevnext-element="next"] a',
+      );
+      
+      // Check if we'll actually redirect before showing notification
+      let willRedirect = false;
+      let redirectHref = null;
+      
+      if (nextItemLink) {
+        willRedirect = true;
+        redirectHref = nextItemLink.getAttribute("href");
+      } else {
+        // if no next item found, check if we should redirect to course page
+        // Skip redirect on Welsh pages if links aren't found (likely Finsweet initialization issue)
+        const isWelsh = document.body.getAttribute("data-is-welsh");
+        if (isWelsh === "true" || isWelsh === true) {
+          // Don't redirect on Welsh pages if links aren't found
+          console.warn("No next link found on Welsh page - skipping redirect to avoid navigation issues");
+          return;
         }
         
-        // Only show redirect notification if we're actually going to redirect
-        if (willRedirect && redirectHref) {
-          const redirectionNotification = document.querySelector(
-            "#redirection-notification",
-          );
-          if (redirectionNotification)
-            redirectionNotification.classList.remove("is-hidden-onload");
-          
-          window.location.href = redirectHref;
+        // For non-Welsh pages, redirect to course page if no next item found
+        const courseLink = document.querySelector("a.breadcrumb-link");
+        if (courseLink) {
+          willRedirect = true;
+          redirectHref = courseLink.getAttribute("href") + "?confettis";
         }
       }
-    }, delay);
+      
+      // Show redirect notification immediately if we're going to redirect
+      if (willRedirect && redirectHref) {
+        const redirectionNotification = document.querySelector(
+          "#redirection-notification",
+        );
+        if (redirectionNotification)
+          redirectionNotification.classList.remove("is-hidden-onload");
+        
+        // Wait for delay before actually redirecting
+        setTimeout(() => {
+          window.location.href = redirectHref;
+        }, delay);
+      }
+    }
   };
 
   const setAutoCompleteLink = () => {
