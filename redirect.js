@@ -1,4 +1,4 @@
-console.log("Weglot Redirect Logic");
+console.log("redirect.js loaded");
 
 /**
  * Weglot Redirect Script:
