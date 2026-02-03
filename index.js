@@ -680,7 +680,7 @@ function codeToRun() {
   const enablePrevNext = () => {
     const prevNext = document.querySelector("#prev-next");
     if (prevNext) {
-      const link = prevNext.querySelector('[fs-cmsprevnext-element="next"] a');
+      const link = prevNext.querySelector('[fs-list-element="next-item"] a');
       if (link) prevNext.classList.remove("is-hidden-onload");
     }
   };
@@ -689,7 +689,7 @@ function codeToRun() {
     const prevNext = document.querySelector("#prev-next");
     if (prevNext) {
       const nextItemLink = prevNext.querySelector(
-        '[fs-cmsprevnext-element="next"] a',
+        '[fs-list-element="next-item"] a',
       );
 
       // Check if we'll actually redirect before showing notification
