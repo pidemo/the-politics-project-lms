@@ -33,7 +33,7 @@ function codeToRun() {
     },
     submitFinish: {
       en: "Submit Answers & Finish Course",
-      cy: "[CY] Submit Answers & Finish Course",
+      cy: "Cyflwyno atebion & gorffen y cwrs",
     },
     saving: {
       en: "Saving Answers...",
@@ -53,11 +53,11 @@ function codeToRun() {
     },
     answersSaved: {
       en: "Answers saved successfully!",
-      cy: "Atebion wedi’u harbed!",
+      cy: "Atebion wedi'u harbed!",
     },
     saveError: {
       en: "There was a problem saving your Answers.. Please try again!",
-      cy: "[CY] There was a problem saving your Answers.. Please try again!",
+      cy: "Roedd yna problem wrth arbed eich atebion. Rhowch gynnig arall arni, os gwelwch yn dda!",
     },
   };
 
