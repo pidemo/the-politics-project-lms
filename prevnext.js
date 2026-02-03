@@ -10,7 +10,6 @@ console.log("prevnext.js loaded");
     const prevNext = document.querySelector("#prev-next");
 
     if (!prevNext) {
-      console.log("prevnext.js: #prev-next element not found");
       return false;
     }
 
@@ -36,13 +35,8 @@ console.log("prevnext.js loaded");
     });
 
     if (linksToUpdate.length === 0) {
-      console.log(
-        "prevnext.js: No links with data-wg-notranslate found - skipping link updates",
-      );
       return false;
     }
-
-    console.log(`prevnext.js: Found ${linksToUpdate.length} links to update`);
 
     linksToUpdate.forEach((link) => {
       const currentHref = link.getAttribute("href");
@@ -63,27 +57,15 @@ console.log("prevnext.js loaded");
       if (currentHref.startsWith("/")) {
         const newHref = "/cy" + currentHref;
         link.setAttribute("href", newHref);
-        console.log(
-          `prevnext.js: Updated href from "${currentHref}" to "${newHref}"`,
-        );
       }
     });
 
-    console.log("prevnext.js: Links updated successfully");
     return true;
   }
 
   function initializeFinsweet() {
     // Initialize FinsweetAttributes array for callbacks (optional, for logging)
     window.FinsweetAttributes ||= [];
-
-    // Register callback to know when CMS PrevNext is ready (optional, for logging)
-    window.FinsweetAttributes.push([
-      "cmsprevnext",
-      (result) => {
-        console.log("prevnext.js: Finsweet CMS PrevNext initialized!", result);
-      },
-    ]);
 
     // With fs-attributes-preventload="true", we need to manually call init()
     // Wait a bit for Finsweet to load, then initialize
@@ -93,7 +75,6 @@ console.log("prevnext.js loaded");
         typeof window.fsAttributes.init === "function"
       ) {
         window.fsAttributes.init();
-        console.log("prevnext.js: Called fsAttributes.init()");
       } else {
         // Retry after a short delay
         setTimeout(tryInit, 100);

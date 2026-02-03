@@ -52,13 +52,13 @@ All text strings that can be customized via attributes:
 
 | Text String | Default English | Default Welsh | Recommended Attribute Name | Element Location |
 |------------|----------------|---------------|---------------------------|------------------|
-| **Submit Button - Initial Text** | "Submit Answers & Finish Course" (end) / "Submit Answers & Start Course" (start) | "[CY] Submit Answers & Finish Course" / "[CY] Submit Answers & Start Course" | `target-initial-text` | `#quiz-submit` |
+| **Submit Button - Initial Text** | "Submit Answers & Finish Course" (end) / "Submit Answers & Start Course" (start) | "[CY] Submit Answers & Finish Course" / "[CY] Submit Answers & Start Course" | `text-initial` (for start stage) / `text-final` (for end stage) | `#quiz-submit` |
 | **Submit Button - Saving** | "Saving Answers..." | "[CY] Saving Answers..." | `text-saving` | `#quiz-submit` |
 | **Submit Button - Error** | "Error.." | "[CY] Error.." | `text-error` | `#quiz-submit` |
 | **Notification - Validation Error** | "Please fill out all required fields!" | "[CY] Please fill out all required fields!" | `text-validation-error` | `#quiz-notification` |
-| **Notification - Redirecting** | "You will be redirected shortly.." | "[CY] You will be redirected shortly.." | `text-redirecting` | `#quiz-notification` |
-| **Notification - Success** | "Answers saved successfully!" | "[CY] Answers saved successfully!" | `text-answers-saved` | `#quiz-notification` |
-| **Notification - Save Error** | "There was a problem saving your Answers.. Please try again!" | "[CY] There was a problem saving your Answers.. Please try again!" | `text-save-error` | `#quiz-notification` |
+| **Notification - Redirecting** | "You will be redirected shortly.." | "[CY] You will be redirected shortly.." | `text-redirect` | `#quiz-notification` |
+| **Notification - Success** | "Answers saved successfully!" | "[CY] Answers saved successfully!" | `text-success` | `#quiz-notification` |
+| **Notification - Save Error** | "There was a problem saving your Answers.. Please try again!" | "[CY] There was a problem saving your Answers.. Please try again!" | `text-error` | `#quiz-notification` |
 | **Button Final/Success Text** | (from `target-final-text` attribute) | (from `target-final-text` attribute) | `target-final-text` | Any button with `target-final-text` |
 
 #### Attribute Naming Convention
@@ -75,11 +75,13 @@ For each text string, use the following pattern:
 
 ```html
 <!-- Submit button with custom English and Welsh text -->
+<!-- Note: text-initial is used when target-stage="start", text-final when target-stage="end" -->
 <button id="quiz-submit" 
-        target-initial-text-en="Submit Answers & Finish Course"
-        target-initial-text-cy="Cyflwyno Atebion a Gorffen y Cwrs"
-        target-final-text-en="Answers Submitted!"
-        target-final-text-cy="Atebion wedi'u cyflwyno!"
+        target-stage="end"
+        text-initial-en="Submit Answers & Start Course"
+        text-initial-cy="Cyflwyno Atebion a Dechrau'r Cwrs"
+        text-final-en="Submit Answers & Finish Course"
+        text-final-cy="Cyflwyno Atebion a Gorffen y Cwrs"
         text-saving-en="Saving..."
         text-saving-cy="Arbed..."
         text-error-en="Oops! Try again"
@@ -95,12 +97,12 @@ For each text string, use the following pattern:
 <div id="quiz-notification"
      text-validation-error-en="Please complete all fields"
      text-validation-error-cy="Cwblhewch yr holl feysydd"
-     text-redirecting-en="Redirecting..."
-     text-redirecting-cy="Ailgyfeirio..."
-     text-answers-saved-en="All done!"
-     text-answers-saved-cy="Wedi gorffen!"
-     text-save-error-en="Something went wrong"
-     text-save-error-cy="Aeth rhywbeth o'i le">
+     text-redirect-en="Redirecting..."
+     text-redirect-cy="Ailgyfeirio..."
+     text-success-en="All done!"
+     text-success-cy="Wedi gorffen!"
+     text-error-en="Something went wrong"
+     text-error-cy="Aeth rhywbeth o'i le">
 </div>
 ```
 
@@ -118,7 +120,8 @@ For each text string, use the following pattern:
 
 #### Notes
 
-- If you only provide the base attribute (e.g., `target-initial-text`), it will be used for both languages
+- If you only provide the base attribute (e.g., `text-initial`), it will be used for both languages
+- Submit button uses `text-initial` when `target-stage="start"` and `text-final` when `target-stage="end"`
 - The `target-final-text` attribute replaces the older `target-success-text` attribute (which is still supported for backward compatibility)
 - If you provide language-specific attributes, they take precedence over the base attribute
 - The Welsh placeholders (`[CY]`) in the default text should be replaced with actual Welsh translations
@@ -148,8 +151,8 @@ For each text string, use the following pattern:
   - Submit attributes: `target-type="quiz"|"survey"`, `target-atid`
   - Surveys add: `target-stage="start"|"end"`, `target-course-atid`
   - UI hooks: `#quiz-notification`, `#quiz-loader`
-  - **i18n attributes on `#quiz-submit`**: `target-initial-text`, `text-saving`, `text-error` (with `-en`/`-cy` suffixes)
-  - **i18n attributes on `#quiz-notification`**: `text-validation-error`, `text-redirecting`, `text-answers-saved`, `text-save-error` (with `-en`/`-cy` suffixes)
+    - **i18n attributes on `#quiz-submit`**: `text-initial` (for `target-stage="start"`), `text-final` (for `target-stage="end"`), `text-saving`, `text-error` (with `-en`/`-cy` suffixes)
+  - **i18n attributes on `#quiz-notification`**: `text-validation-error`, `text-redirect`, `text-success`, `text-error` (with `-en`/`-cy` suffixes)
   - Quiz building:
     - Questions: `[data-question-atid]` with radio options found by `[data-parent-question-atid="QUESTION_ATID"]`
     - Options contain `.radio-group[data-option-tf]`, `.w-radio-input`, `data-option-atid`, `data-option-name`
@@ -157,7 +160,7 @@ For each text string, use the following pattern:
     - Optional container `#quiz-options-wrapper` is removed once options are nested
   - Survey inputs: elements with `[data-input-name]` (names are applied automatically)
 - Navigation helpers:
-  - Prev/Next wrapper: `#prev-next` containing `[fs-cmsprevnext-element="next"] a`
+  - Prev/Next wrapper: `#prev-next` containing `[fs-list-element="next-item"] a` (Finsweet Attributes v2)
   - Redirect notice: `#redirection-notification`
 - Other hooks:
   - Course back links: elements with `[data-course-slug]` → href becomes `/courses/<slug>`
@@ -178,6 +181,9 @@ For each text string, use the following pattern:
   - Builds a formatted string and JSON payload (excluding internal fields) and posts to a webhook
   - On success: updates visual progress, shows notifications, reveals answers (quiz), auto-redirects (survey), enables prerequisites, updates prev/next
   - On error: shows error notification and resets UI state
+- Navigation behavior:
+  - Redirect notification (`#redirection-notification`) appears immediately when a redirect is confirmed (not after delay)
+  - Navigation checks for next item link first, falls back to course breadcrumb link if no next item found
 
 ### Webhooks
 
@@ -185,6 +191,188 @@ For each text string, use the following pattern:
 - Quiz/Survey submit: posts JSON payload to a Make.com webhook
 
 Note: Replace webhook URLs with environment-specific values as needed.
+
+---
+
+# Welsh Language & Weglot Integration Scripts
+
+This section documents scripts that handle Welsh language support, Weglot translation integration, and Finsweet PrevNext link preprocessing for Welsh pages.
+
+## Overview
+
+The Welsh language integration consists of several scripts that work together:
+- **welsh-attr.js**: Unified script for Weglot attribute setting and language redirection
+- **redirect.js**: Standalone script for Welsh language redirection (alternative to welsh-attr.js)
+- **notranslate.js**: Standalone script for applying Weglot bypass attributes (alternative to welsh-attr.js)
+- **prevnext.js**: Pre-processes Finsweet PrevNext links for Welsh pages
+
+## welsh-attr.js
+
+Unified script that handles both Weglot attribute application and Welsh language redirection.
+
+### Features
+
+- **Bypass Attribute Application**: Finds all elements with `data-notranslate="true"` and applies `data-wg-notranslate` to prevent Weglot from translating them
+- **Early Execution**: Applies bypass attributes on `DOMContentLoaded` (or immediately if DOM is ready) for better timing
+- **Welsh Language Redirection**: Automatically switches to Welsh (`cy`) if `data-is-welsh="true"` is set on `<body>`
+- **Error Handling**: Wrapped in try-catch blocks to prevent one function's failure from blocking the other
+- **No-Redirect Support**: Skips language switch if URL contains `?noredirect` query parameter
+
+### Usage
+
+Include the script in your HTML:
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/welsh-attr.min.js"
+  type="text/javascript"
+></script>
+```
+
+### Required Attributes
+
+- **On `<body>`**: `data-is-welsh="true"` (to trigger Welsh language switch)
+- **On elements to exclude from translation**: `data-notranslate="true"` (will be converted to `data-wg-notranslate`)
+
+### Behavior
+
+1. **On DOM Ready**: Immediately applies `data-wg-notranslate` to all elements with `data-notranslate="true"`
+2. **On Weglot Initialized**: 
+   - Re-applies bypass attributes (ensures they're set before translation)
+   - Checks for `?noredirect` parameter
+   - If `data-is-welsh="true"` and no `?noredirect`, switches to Welsh language
+   - Ensures bypass attributes are set right before `Weglot.switchTo("cy")`
+
+### Example
+
+```html
+<body data-is-welsh="true">
+  <!-- This element will not be translated -->
+  <div data-notranslate="true">
+    Technical term that should stay in English
+  </div>
+</body>
+```
+
+## redirect.js
+
+Standalone script for handling Welsh language redirection only. Use this if you want to separate redirection logic from attribute application.
+
+### Features
+
+- **Welsh Language Redirection**: Automatically switches to Welsh if `data-is-welsh="true"`
+- **No-Redirect Support**: Skips language switch if URL contains `?noredirect` query parameter
+
+### Usage
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/redirect.min.js"
+  type="text/javascript"
+></script>
+```
+
+## notranslate.js
+
+Standalone script for applying Weglot bypass attributes only. Use this if you want to separate attribute logic from redirection.
+
+### Features
+
+- **Bypass Attribute Application**: Finds all elements with `data-notranslate="true"` and applies `data-wg-notranslate`
+- **Early Execution**: Applies attributes on `DOMContentLoaded` for better timing
+
+### Usage
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/notranslate.min.js"
+  type="text/javascript"
+></script>
+```
+
+## prevnext.js
+
+Pre-processes Finsweet Attributes CMS PrevNext links for Welsh pages by updating hrefs before Finsweet initializes.
+
+### Purpose
+
+On Welsh pages, Weglot adds a `/cy/` prefix to URLs. This script ensures that Prev/Next navigation links in the `#prev-next` container have the correct `/cy/` prefix before Finsweet Attributes processes them, preventing navigation issues on Welsh pages.
+
+### Features
+
+- **Link Pre-processing**: Updates hrefs for links with `data-wg-notranslate` (or inside elements with this attribute) to prefix with `/cy`
+- **Always Initializes Finsweet**: Ensures Finsweet PrevNext is initialized regardless of whether links are found
+- **Smart Link Detection**: Checks both the link element itself and parent elements for `data-wg-notranslate`
+- **Safe URL Handling**: Skips external URLs, anchors, query strings, and URLs already prefixed with `/cy/`
+
+### Prerequisites
+
+- Finsweet Attributes v2 library loaded
+- `fs-attributes-preventload="true"` attribute set in the head script to prevent auto-initialization
+- `#prev-next` container with Prev/Next links
+
+### Usage
+
+Include the script before Finsweet Attributes initializes:
+
+```html
+<!-- In head -->
+<script
+  src="https://cdn.jsdelivr.net/gh/finsweet/attributes@2/attributes.js"
+  fs-attributes-preventload="true"
+></script>
+
+<!-- Before closing body tag -->
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/prevnext.min.js"
+  type="text/javascript"
+></script>
+```
+
+### How It Works
+
+1. **DOM Ready**: Script waits for DOM to be ready
+2. **Link Update**: Searches `#prev-next` for links with `data-wg-notranslate` (on link or parent)
+3. **Href Modification**: Updates hrefs from `/course/xyz` to `/cy/course/xyz` (only for relative URLs starting with `/`)
+4. **Finsweet Initialization**: Always calls `window.fsAttributes.init()` to initialize Finsweet PrevNext
+5. **Callback Registration**: Registers callback with `window.FinsweetAttributes.push(['cmsprevnext', callback])` for logging
+
+### Required HTML Structure
+
+```html
+<div id="prev-next">
+  <!-- Links with data-wg-notranslate will be updated -->
+  <div data-wg-notranslate>
+    <a href="/course/module-1">Previous</a>
+  </div>
+  <div fs-list-element="next-item" data-wg-notranslate>
+    <a href="/course/module-2">Next</a>
+  </div>
+</div>
+```
+
+### Behavior
+
+- **If links found**: Updates hrefs, then initializes Finsweet
+- **If no links found**: Still initializes Finsweet (prevents navigation from breaking)
+- **Link detection**: Checks both `a[data-wg-notranslate]` and `a` inside `[data-wg-notranslate]` elements
+
+### Console Logging
+
+The script provides detailed console logging:
+- `prevnext.js loaded` - Script loaded
+- `prevnext.js: Found X links to update` - Links found and updated
+- `prevnext.js: No links with data-wg-notranslate found - skipping link updates` - No links to update
+- `prevnext.js: Called fsAttributes.init()` - Finsweet initialization called
+- `prevnext.js: Finsweet CMS PrevNext initialized!` - Finsweet callback fired
+
+### Notes
+
+- Links must already exist in the HTML (Finsweet doesn't generate them)
+- Only relative URLs starting with `/` are updated
+- External URLs (`http://`, `https://`), anchors (`#`), and query strings (`?`) are skipped
+- URLs already prefixed with `/cy/` are skipped
+- The script always initializes Finsweet, even if no links need updating
 
 ---
 
