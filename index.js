@@ -57,7 +57,7 @@ function codeToRun() {
     },
     saveError: {
       en: "There was a problem saving your Answers.. Please try again!",
-      cy: "Roedd yna problem wrth arbed eich atebion. Rhowch gynnig arall arni, os gwelwch yn dda!",
+      cy: "Roedd yna broblem wrth arbed eich atebion. Rhowch gynnig ar all arni, os gwelwch yn dda!",
     },
   };
 
