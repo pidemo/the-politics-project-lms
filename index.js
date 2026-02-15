@@ -485,6 +485,206 @@ function codeToRun() {
     }
   };
 
+  const finalConfettis = () => {
+    const colors = ["#e63a11", "#303D87", "#3c405d"];
+
+    const totalParticles = 220;
+    const cannonParticles = 140;
+    const showerParticles = totalParticles - cannonParticles;
+
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // TEMP: don’t block for reduced motion while you’re testing
+    // const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // if (prefersReducedMotion) return;
+
+    const makeParticle = ({ x, y, size, shape, color, z = 9999 }) => {
+      const el = document.createElement("div");
+      el.style.position = "fixed";
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
+      el.style.backgroundColor = color;
+      el.style.zIndex = String(z);
+      el.style.pointerEvents = "none";
+      el.style.willChange = "transform, opacity";
+      el.style.transform = "translate3d(0,0,0)";
+
+      if (shape === "dot") el.style.borderRadius = "999px";
+      if (shape === "streamer") {
+        el.style.width = `${Math.max(2, Math.round(size * 0.35))}px`;
+        el.style.height = `${Math.round(size * 2.2)}px`;
+        el.style.borderRadius = "3px";
+      }
+
+      document.body.appendChild(el);
+      return el;
+    };
+
+    const animatePhysicsParticle = (p) => {
+      const start = performance.now();
+      let last = start;
+
+      const tick = (now) => {
+        const dt = Math.min(32, now - last);
+        last = now;
+        const t = dt / 16.6667;
+
+        p.vy += p.g * t;
+
+        const wind =
+          p.windBase + Math.sin((now + p.windPhase) * p.windFreq) * p.windAmp;
+        p.vx += wind * t;
+
+        p.vx *= Math.pow(p.drag, t);
+        p.vy *= Math.pow(p.drag, t);
+
+        p.vx +=
+          Math.sin((p.rot + now * 0.004) * p.flutterFreq) * p.flutterAmp * t;
+
+        p.x += p.vx * t;
+        p.y += p.vy * t;
+
+        p.rot += p.omega * t;
+
+        const age = now - start;
+        const fadeStart = p.life * 0.7;
+        const opacity =
+          age < fadeStart
+            ? 1
+            : Math.max(0, 1 - (age - fadeStart) / (p.life - fadeStart));
+
+        p.el.style.opacity = opacity.toFixed(3);
+        p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
+
+        const offscreen =
+          p.y0 + p.y > window.innerHeight + 200 ||
+          p.x0 + p.x < -200 ||
+          p.x0 + p.x > window.innerWidth + 200;
+
+        if (age >= p.life || offscreen || opacity <= 0.001) {
+          p.el.remove();
+          return;
+        }
+
+        requestAnimationFrame(tick);
+      };
+
+      requestAnimationFrame(tick);
+    };
+
+    const spawnCannon = (side) => {
+      const fromLeft = side === "left";
+      const dir = fromLeft ? 1 : -1;
+
+      const baseX = fromLeft ? 0 : window.innerWidth;
+      const baseY = Math.round(window.innerHeight * 0.74);
+
+      const perSide = cannonParticles / 2;
+
+      for (let i = 0; i < perSide; i++) {
+        const delay = rand(0, 350);
+
+        setTimeout(() => {
+          const shape = pick(["square", "square", "dot", "streamer"]);
+          const size = Math.round(rand(6, 12));
+          const color = pick(colors);
+
+          const x0 = baseX + (fromLeft ? rand(10, 30) : rand(-30, -10));
+          const y0 = baseY + rand(-20, 20);
+
+          const el = makeParticle({ x: x0, y: y0, size, shape, color });
+
+          const speed = rand(18, 28);
+          const angle = rand(-70, -35) * (Math.PI / 180);
+
+          const vx = Math.cos(angle) * speed * dir + rand(0, 3) * dir;
+          const vy = Math.sin(angle) * speed + rand(-2, 1);
+
+          const p = {
+            el,
+            x0,
+            y0,
+            x: 0,
+            y: 0,
+            vx,
+            vy,
+            g: shape === "streamer" ? rand(0.35, 0.55) : rand(0.45, 0.75),
+            drag:
+              shape === "streamer" ? rand(0.965, 0.985) : rand(0.955, 0.975),
+            windBase: rand(-0.02, 0.02),
+            windAmp: rand(0.02, 0.06),
+            windFreq: rand(0.0012, 0.0025),
+            windPhase: rand(0, 10000),
+            flutterAmp: shape === "dot" ? rand(0.01, 0.03) : rand(0.02, 0.06),
+            flutterFreq: rand(0.8, 1.6),
+            rot: rand(0, 360),
+            omega:
+              (shape === "streamer" ? rand(8, 18) : rand(12, 30)) *
+              (dir * rand(0.6, 1.4)),
+            life: rand(3200, 4600),
+          };
+
+          // IMPORTANT: translate is relative, so we keep base position via left/top
+          // (already set in makeParticle). Physics uses translate only.
+          animatePhysicsParticle(p);
+        }, delay);
+      }
+    };
+
+    const spawnTopShower = () => {
+      const waveDelayBase = 1100;
+
+      for (let i = 0; i < showerParticles; i++) {
+        const delay = waveDelayBase + rand(0, 900);
+
+        setTimeout(() => {
+          const shape = pick(["square", "dot", "streamer"]);
+          const size = Math.round(rand(5, 10));
+          const color = pick(colors);
+
+          const x = rand(window.innerWidth * 0.2, window.innerWidth * 0.8);
+          const y = -20;
+
+          const el = makeParticle({ x, y, size, shape, color });
+
+          const sway1 = rand(-70, 70);
+          const sway2 = rand(-140, 140);
+          const spin = rand(360, 1100);
+
+          const animation = el.animate(
+            [
+              {
+                transform: "translate3d(0,0,0) rotate(0deg)",
+                opacity: 1,
+                offset: 0,
+              },
+              {
+                transform: `translate3d(${sway1}px, ${window.innerHeight * 0.45}px, 0) rotate(${spin * 0.45}deg)`,
+                opacity: 1,
+                offset: 0.55,
+              },
+              {
+                transform: `translate3d(${sway2}px, ${window.innerHeight + 80}px, 0) rotate(${spin}deg)`,
+                opacity: 0,
+                offset: 1,
+              },
+            ],
+            { duration: 3600, easing: "ease-out", fill: "forwards" },
+          );
+
+          animation.onfinish = () => el.remove();
+        }, delay);
+      }
+    };
+
+    spawnCannon("left");
+    spawnCannon("right");
+    spawnTopShower();
+  };
+
   const processVisualProgress = (element, withConfettiTF) => {
     const confetti = element.querySelector(
       CONFIG.selectors.visualProgressConfetti,
@@ -796,13 +996,30 @@ function codeToRun() {
 
   const checkParams = () => {
     const urlParams = new URLSearchParams(window.location.search);
+
     // Check for auto-complete in URL params and execute autoCompleteTarget if present
     if (urlParams.has("auto-complete")) {
       autoCompleteTarget();
     }
-    // Check for confettis in URL params and execute confettis if present
+
+    // Check for confettis in URL params
     if (urlParams.has("confettis")) {
-      confettis();
+      // Check if the current page is in the course folder
+      // Assumption: course pages have '/course/' in the URL path
+      const pathname = window.location.pathname;
+      if (pathname.includes("/courses/")) {
+        // convert next steps rich text buttons to buttons
+        nextStepsRTButtonConversion();
+
+        // unhide next steps section
+        const nextSteps = document.querySelector("#next-steps");
+        if (nextSteps) nextSteps.classList.remove("is-hidden-onload");
+
+        // fire final confettis
+        finalConfettis();
+      } else {
+        confettis();
+      }
     }
   };
 
@@ -834,6 +1051,15 @@ function codeToRun() {
     });
   });
 }
+
+const nextStepsRTButtonConversion = () => {
+  const nextStepsRichText = document.querySelector("#next-steps-rich-text");
+  if (nextStepsRichText) {
+    nextStepsRichText.querySelectorAll("a").forEach((link) => {
+      link.classList.add("btn");
+    });
+  }
+};
 
 if (window.$memberstackReady) {
   // Run the code immediately if Memberstack is already ready

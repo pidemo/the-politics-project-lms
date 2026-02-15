@@ -23,7 +23,10 @@ This client script powers the LMS behaviors across course/module pages. It initi
 - Quiz and survey form handling (validations, submission, success/error UI)
 - Automatic next-item navigation and optional auto-complete
 - Member progress sync via webhooks
-- Confetti/celebration on completion milestones
+- Confetti/celebration animations on completion milestones (regular and final course completion)
+- Course completion celebrations with "Next Steps" section reveal
+- Rich text link handling (auto-opens in new tabs)
+- Course back link generation
 - **Internationalization (i18n) support** for English and Welsh languages
 
 ### Internationalization (i18n)
@@ -50,16 +53,16 @@ The script supports bilingual text (English and Welsh) for all dynamically set t
 
 All text strings that can be customized via attributes:
 
-| Text String | Default English | Default Welsh | Recommended Attribute Name | Element Location |
-|------------|----------------|---------------|---------------------------|------------------|
-| **Submit Button - Initial Text** | "Submit Answers & Finish Course" (end) / "Submit Answers & Start Course" (start) | "[CY] Submit Answers & Finish Course" / "[CY] Submit Answers & Start Course" | `text-initial` (for start stage) / `text-final` (for end stage) | `#quiz-submit` |
-| **Submit Button - Saving** | "Saving Answers..." | "[CY] Saving Answers..." | `text-saving` | `#quiz-submit` |
-| **Submit Button - Error** | "Error.." | "[CY] Error.." | `text-error` | `#quiz-submit` |
-| **Notification - Validation Error** | "Please fill out all required fields!" | "[CY] Please fill out all required fields!" | `text-validation-error` | `#quiz-notification` |
-| **Notification - Redirecting** | "You will be redirected shortly.." | "[CY] You will be redirected shortly.." | `text-redirect` | `#quiz-notification` |
-| **Notification - Success** | "Answers saved successfully!" | "[CY] Answers saved successfully!" | `text-success` | `#quiz-notification` |
-| **Notification - Save Error** | "There was a problem saving your Answers.. Please try again!" | "[CY] There was a problem saving your Answers.. Please try again!" | `text-error` | `#quiz-notification` |
-| **Button Final/Success Text** | (from `target-final-text` attribute) | (from `target-final-text` attribute) | `target-final-text` | Any button with `target-final-text` |
+| Text String                         | Default English                                                                  | Default Welsh                                                                | Recommended Attribute Name                                      | Element Location                    |
+| ----------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------- |
+| **Submit Button - Initial Text**    | "Submit Answers & Finish Course" (end) / "Submit Answers & Start Course" (start) | "[CY] Submit Answers & Finish Course" / "[CY] Submit Answers & Start Course" | `text-initial` (for start stage) / `text-final` (for end stage) | `#quiz-submit`                      |
+| **Submit Button - Saving**          | "Saving Answers..."                                                              | "[CY] Saving Answers..."                                                     | `text-saving`                                                   | `#quiz-submit`                      |
+| **Submit Button - Error**           | "Error.."                                                                        | "[CY] Error.."                                                               | `text-error`                                                    | `#quiz-submit`                      |
+| **Notification - Validation Error** | "Please fill out all required fields!"                                           | "[CY] Please fill out all required fields!"                                  | `text-validation-error`                                         | `#quiz-notification`                |
+| **Notification - Redirecting**      | "You will be redirected shortly.."                                               | "[CY] You will be redirected shortly.."                                      | `text-redirect`                                                 | `#quiz-notification`                |
+| **Notification - Success**          | "Answers saved successfully!"                                                    | "[CY] Answers saved successfully!"                                           | `text-success`                                                  | `#quiz-notification`                |
+| **Notification - Save Error**       | "There was a problem saving your Answers.. Please try again!"                    | "[CY] There was a problem saving your Answers.. Please try again!"           | `text-error`                                                    | `#quiz-notification`                |
+| **Button Final/Success Text**       | (from `target-final-text` attribute)                                             | (from `target-final-text` attribute)                                         | `target-final-text`                                             | Any button with `target-final-text` |
 
 #### Attribute Naming Convention
 
@@ -76,16 +79,18 @@ For each text string, use the following pattern:
 ```html
 <!-- Submit button with custom English and Welsh text -->
 <!-- Note: text-initial is used when target-stage="start", text-final when target-stage="end" -->
-<button id="quiz-submit" 
-        target-stage="end"
-        text-initial-en="Submit Answers & Start Course"
-        text-initial-cy="Cyflwyno Atebion a Dechrau'r Cwrs"
-        text-final-en="Submit Answers & Finish Course"
-        text-final-cy="Cyflwyno Atebion a Gorffen y Cwrs"
-        text-saving-en="Saving..."
-        text-saving-cy="Arbed..."
-        text-error-en="Oops! Try again"
-        text-error-cy="Wps! Ceisiwch eto">
+<button
+  id="quiz-submit"
+  target-stage="end"
+  text-initial-en="Submit Answers & Start Course"
+  text-initial-cy="Cyflwyno Atebion a Dechrau'r Cwrs"
+  text-final-en="Submit Answers & Finish Course"
+  text-final-cy="Cyflwyno Atebion a Gorffen y Cwrs"
+  text-saving-en="Saving..."
+  text-saving-cy="Arbed..."
+  text-error-en="Oops! Try again"
+  text-error-cy="Wps! Ceisiwch eto"
+>
   Submit
 </button>
 ```
@@ -94,26 +99,29 @@ For each text string, use the following pattern:
 
 ```html
 <!-- Notification element with custom messages -->
-<div id="quiz-notification"
-     text-validation-error-en="Please complete all fields"
-     text-validation-error-cy="Cwblhewch yr holl feysydd"
-     text-redirect-en="Redirecting..."
-     text-redirect-cy="Ailgyfeirio..."
-     text-success-en="All done!"
-     text-success-cy="Wedi gorffen!"
-     text-error-en="Something went wrong"
-     text-error-cy="Aeth rhywbeth o'i le">
-</div>
+<div
+  id="quiz-notification"
+  text-validation-error-en="Please complete all fields"
+  text-validation-error-cy="Cwblhewch yr holl feysydd"
+  text-redirect-en="Redirecting..."
+  text-redirect-cy="Ailgyfeirio..."
+  text-success-en="All done!"
+  text-success-cy="Wedi gorffen!"
+  text-error-en="Something went wrong"
+  text-error-cy="Aeth rhywbeth o'i le"
+></div>
 ```
 
 **Example 3: Customizing Button Final/Success Text**
 
 ```html
 <!-- Button with custom final text for both languages -->
-<button target-final-text-en="Completed ✓"
-         target-final-text-cy="Wedi cwblhau ✓"
-         target-atid="MODULE_123"
-         target-type="module">
+<button
+  target-final-text-en="Completed ✓"
+  target-final-text-cy="Wedi cwblhau ✓"
+  target-atid="MODULE_123"
+  target-type="module"
+>
   Mark as Complete
 </button>
 ```
@@ -167,6 +175,9 @@ For each text string, use the following pattern:
   - Page loader: `#page-loader` (removed once ready)
   - Survey gating: `#disabled-overlay[disabled-atid]` and `#form-wrapper`
   - Auto-complete button: `#module-complete-button` (clicked when `?auto-complete` is present)
+  - Next Steps section: `#next-steps` (revealed on course completion with `?confettis` parameter)
+  - Next Steps rich text: `#next-steps-rich-text` (links converted to buttons on course completion)
+  - Rich text links: All links in `.rich-text` elements automatically open in new tabs with `rel="noopener noreferrer"`
 
 ### Behaviors
 
@@ -184,6 +195,18 @@ For each text string, use the following pattern:
 - Navigation behavior:
   - Redirect notification (`#redirection-notification`) appears immediately when a redirect is confirmed (not after delay)
   - Navigation checks for next item link first, falls back to course breadcrumb link if no next item found
+- Confetti animations:
+  - Regular confetti (`confettis()`) fires on module completion and when `?confettis` parameter is present (non-course pages)
+  - Final confetti (`finalConfettis()`) fires on course completion when `?confettis` parameter is present and URL contains `/courses/`
+  - Final confetti includes cannon particles from left/right and top shower particles
+- Course completion celebrations:
+  - When `?confettis` parameter is present and page is in `/courses/` folder:
+    - Converts rich text links in `#next-steps-rich-text` to button-styled links
+    - Reveals `#next-steps` section
+    - Triggers final confetti animation
+- URL parameters:
+  - `?auto-complete`: Automatically clicks `#module-complete-button` on page load
+  - `?confettis`: Triggers confetti animation (regular for non-course pages, final for course pages)
 
 ### Webhooks
 
@@ -194,6 +217,266 @@ Note: Replace webhook URLs with environment-specific values as needed.
 
 ---
 
+# Additional Scripts
+
+This section documents additional utility scripts that complement the main LMS functionality.
+
+## final-confettis.js
+
+Advanced confetti animation script for course completion celebrations. Provides a more elaborate confetti effect than the standard confetti used for module completion.
+
+### Features
+
+- **Cannon Particles**: 140 particles fired from left and right sides of the screen
+- **Top Shower**: 80 particles falling from the top of the screen
+- **Multiple Shapes**: Supports square, dot, and streamer particle shapes
+- **Physics-Based Animation**: Realistic particle physics with gravity, wind, drag, and rotation
+- **Brand Colors**: Uses custom brand colors (`#e63a11`, `#303D87`, `#3c405d`)
+
+### Usage
+
+The script is automatically called by `index.js` when:
+
+- URL contains `?confettis` parameter
+- Page URL includes `/courses/` (indicating a course completion page)
+
+```javascript
+// Called automatically by index.js
+finalConfettis();
+```
+
+### Technical Details
+
+- Total particles: 220 (140 cannon + 80 shower)
+- Particle sizes: 5-12px for shower, 6-12px for cannon
+- Animation duration: 3.2-4.6 seconds per particle
+- Uses `requestAnimationFrame` for smooth 60fps animation
+- Particles automatically clean up when off-screen or animation completes
+
+### Integration
+
+The script is integrated into `index.js` and fires automatically on course completion. No manual integration required if using the main LMS script.
+
+## backlinks.js
+
+Generates dynamic backlinks for related programmes and schemes of work based on CMS data.
+
+### Features
+
+- **Dynamic Link Generation**: Creates clickable links from comma-separated slugs and names
+- **Template-Based**: Uses a template element to clone and create multiple links
+- **Auto-Hide Empty**: Removes wrapper elements if no slugs or names are provided
+- **Path Configuration**: Supports different base paths for different link types
+
+### Usage
+
+Include the script in your HTML:
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/backlinks.min.js"
+  type="text/javascript"
+></script>
+```
+
+### Required HTML Structure
+
+**For Programmes:**
+
+```html
+<div id="related-programmes">
+  <div class="backlinks-slugs">slug1,slug2,slug3</div>
+  <div class="backlinks-names">Programme 1,Programme 2,Programme 3</div>
+  <a class="tag is-hidden-onload" href="#">Template Link</a>
+</div>
+```
+
+**For Schemes of Work:**
+
+```html
+<div id="related-schemes-of-work">
+  <div class="backlinks-slugs">scheme1,scheme2</div>
+  <div class="backlinks-names">Scheme 1,Scheme 2</div>
+  <a class="tag is-hidden-onload" href="#">Template Link</a>
+</div>
+```
+
+### Behavior
+
+1. **Finds Wrapper**: Looks for `#related-programmes` or `#related-schemes-of-work`
+2. **Reads Data**: Extracts slugs and names from `.backlinks-slugs` and `.backlinks-names` elements
+3. **Validates**: Removes wrapper if slugs or names are empty
+4. **Generates Links**: Clones template link for each slug/name pair
+5. **Sets Href**: Sets href to `/{path}/{slug}` (e.g., `/lms-programmes/slug1`)
+6. **Sets Text**: Sets link text to corresponding name
+7. **Reveals**: Removes `is-hidden-onload` class from generated links and parent wrapper
+8. **Cleans Up**: Removes template and data elements
+
+### Paths
+
+- **Programmes**: `/lms-programmes/{slug}`
+- **Schemes of Work**: `/schemes-of-work/{slug}`
+
+### Notes
+
+- Slugs and names must be comma-separated and in the same order
+- Template element must have `is-hidden-onload` class initially
+- Parent wrapper will be hidden until links are generated
+- Empty wrappers are automatically removed
+
+## e-learning.js
+
+Manages course status display and button text for e-learning courses based on member progress.
+
+### Features
+
+- **Course Status Detection**: Reads member's `completed-courses` and `started-courses` custom fields
+- **Dynamic Button Text**: Updates button text based on course status
+- **Status Badges**: Shows/hides status badges for "in-progress" and "completed" courses
+- **Memberstack Integration**: Waits for Memberstack to be ready before executing
+
+### Usage
+
+Include the script in your HTML:
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/e-learning.min.js"
+  type="text/javascript"
+></script>
+```
+
+### Required HTML Structure
+
+**For In-Progress Courses:**
+
+```html
+<div class="button-row">
+  <div
+    data-course-atid="COURSE_ATID"
+    data-course-status="in-progress"
+    class="is-hidden-onload"
+  >
+    <!-- Status badge or indicator -->
+  </div>
+  <div class="component-button-text">Start Course</div>
+</div>
+```
+
+**For Completed Courses:**
+
+```html
+<div class="button-row">
+  <div
+    data-course-atid="COURSE_ATID"
+    data-course-status="completed"
+    class="is-hidden-onload"
+  >
+    <!-- Status badge or indicator -->
+  </div>
+  <div class="component-button-text">Start Course</div>
+</div>
+```
+
+### Behavior
+
+1. **Waits for Memberstack**: Ensures Memberstack is ready before executing
+2. **Reads Member Data**: Gets `completed-courses` and `started-courses` from member custom fields
+3. **Filters Started**: Finds courses that are started but not completed
+4. **Updates In-Progress**: For each in-progress course:
+   - Finds elements with matching `data-course-atid` and `data-course-status="in-progress"`
+   - Removes `is-hidden-onload` class to reveal status badge
+   - Updates button text to "Continue Learning"
+5. **Updates Completed**: For each completed course:
+   - Finds elements with matching `data-course-atid` and `data-course-status="completed"`
+   - Removes `is-hidden-onload` class to reveal status badge
+   - Updates button text to "Review Learnings"
+
+### Text Strings
+
+The script currently uses hardcoded English text:
+
+- **In-Progress**: "Continue Learning"
+- **Completed**: "Review Learnings"
+
+**Note**: These strings are planned for internationalization (i18n) support in a future update to support English and Welsh languages, similar to the i18n implementation in `index.js`.
+
+### Member Custom Fields
+
+- `completed-courses`: Array of course ATIDs that are completed
+- `started-courses`: Array of course ATIDs that have been started (may include completed)
+
+## request-form.js
+
+Handles form submission for request forms, posting data to a Make.com webhook and managing UI feedback.
+
+### Features
+
+- **Form Submission**: Collects form data and posts to webhook endpoint
+- **Loading States**: Shows/hides loader during submission
+- **Success/Error Handling**: Displays appropriate messages based on response
+- **Target ATID Integration**: Automatically includes target ATID from page element
+- **Response Validation**: Validates webhook response (expects "success" text)
+
+### Usage
+
+Include the script in your HTML:
+
+```html
+<script
+  src="https://cdn.jsdelivr.net/gh/pidemo/the-politics-project-lms@main/request-form.min.js"
+  type="text/javascript"
+></script>
+```
+
+### Required HTML Structure
+
+```html
+<form id="request-form">
+  <!-- Form fields -->
+  <button id="request-submit">Submit Request</button>
+</form>
+
+<div id="request-loader" style="display: none;">Loading...</div>
+<div id="request-success" style="display: none;">
+  Request submitted successfully!
+</div>
+<div id="request-error" style="display: none;">
+  There was an error submitting your request.
+</div>
+<div id="target-atid">TARGET_ATID_VALUE</div>
+```
+
+### Behavior
+
+1. **Form Submission**: Listens for click on `#request-submit` button
+2. **Prevents Default**: Prevents default form submission behavior
+3. **Shows Loader**: Displays `#request-loader` during processing
+4. **Collects Data**: Gathers all form field values via FormData
+5. **Adds Target ATID**: Includes `target-atid` value from `#target-atid` element
+6. **Posts to Webhook**: Sends JSON payload to Make.com webhook
+7. **Handles Response**:
+   - **Success**: Hides form, shows success message, updates button text to "Request Submitted!", disables button
+   - **Error**: Shows error message, hides loader
+8. **Response Validation**: Only accepts response with text content "success" (other responses treated as errors)
+
+### Webhook
+
+- **Endpoint**: `https://hook.eu2.make.com/b91v1unvfhepdkxnvo6mi784kliwlty3`
+- **Method**: POST
+- **Content-Type**: application/json
+- **Expected Response**: Text "success" (200 status)
+
+### Notes
+
+- Webhook URL is hardcoded and should be updated for different environments
+- Form is hidden on success (not reset)
+- Button is disabled after successful submission
+- Target ATID is automatically included from `#target-atid` element text content
+- Response must be exactly "success" text to be considered successful
+
+---
+
 # Welsh Language & Weglot Integration Scripts
 
 This section documents scripts that handle Welsh language support, Weglot translation integration, and Finsweet PrevNext link preprocessing for Welsh pages.
@@ -201,6 +484,7 @@ This section documents scripts that handle Welsh language support, Weglot transl
 ## Overview
 
 The Welsh language integration consists of several scripts that work together:
+
 - **welsh-attr.js**: Unified script for Weglot attribute setting and language redirection
 - **redirect.js**: Standalone script for Welsh language redirection (alternative to welsh-attr.js)
 - **notranslate.js**: Standalone script for applying Weglot bypass attributes (alternative to welsh-attr.js)
@@ -237,7 +521,7 @@ Include the script in your HTML:
 ### Behavior
 
 1. **On DOM Ready**: Immediately applies `data-wg-notranslate` to all elements with `data-notranslate="true"`
-2. **On Weglot Initialized**: 
+2. **On Weglot Initialized**:
    - Re-applies bypass attributes (ensures they're set before translation)
    - Checks for `?noredirect` parameter
    - If `data-is-welsh="true"` and no `?noredirect`, switches to Welsh language
@@ -248,9 +532,7 @@ Include the script in your HTML:
 ```html
 <body data-is-welsh="true">
   <!-- This element will not be translated -->
-  <div data-notranslate="true">
-    Technical term that should stay in English
-  </div>
+  <div data-notranslate="true">Technical term that should stay in English</div>
 </body>
 ```
 
@@ -360,6 +642,7 @@ Include the script before Finsweet Attributes initializes:
 ### Console Logging
 
 The script provides detailed console logging:
+
 - `prevnext.js loaded` - Script loaded
 - `prevnext.js: Found X links to update` - Links found and updated
 - `prevnext.js: No links with data-wg-notranslate found - skipping link updates` - No links to update
@@ -415,15 +698,12 @@ These 3 scripts are bundled into a "Chart Scripts" component in Webflow, so you 
 ### Required Attributes:
 
 - **Chart Title** (`chart-title`)
-
   - The title of your chart that will appear in the legend. (No quotation marks needed)
 
 - **Chart Type** (`chart-type`)
-
   - The type of chart to render (e.g., 'pie', 'bar', 'line'). (No quotation marks needed)
 
 - **[] Chart Labels** (`chart-labels`)
-
   - Labels for your data points.
   - Must be a valid JSON string array, like this: `["Monday", "Tuesday", "Wednesday"]`
 
@@ -435,30 +715,25 @@ These 3 scripts are bundled into a "Chart Scripts" component in Webflow, so you 
 ### Optional Attributes:
 
 - **[] Chart Background Colors** (`chart-background-colors`)
-
   - Background colors for chart elements.
   - For multiple bars, you can provide one color per dataset.
   - If fewer colors than datasets are provided, colors will be reused.
 
 - **[] Chart Border Colors** (`chart-border-colors`)
-
   - Border colors for chart elements.
   - For multiple bars, you can provide one color per dataset.
   - If fewer colors than datasets are provided, colors will be reused.
 
 - **Show/Hide Legend** (`chart-show-legend`)
-
   - Set to `true` to show the chart legend, or `false` to hide it.
   - Example: `chart-show-legend="true"` or `chart-show-legend="false"`
 
 - **Custom Units** (`chart-unit`)
-
   - A string to append to each value in tooltips and data labels (e.g., %, pts, €).
   - For pie charts, the unit will default to `%` unless you specify a different unit with this attribute.
   - Example: `chart-unit=%` or `chart-unit=pts`
 
 - **Aria Label** (`chart-aria-label`)
-
   - Sets an accessible label for the chart's `<canvas>` element for screen readers.
   - Example: `chart-aria-label="Monthly Sales Bar Chart"`
 
