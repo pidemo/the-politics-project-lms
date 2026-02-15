@@ -390,7 +390,13 @@ function codeToRun() {
               getText(quizNotification, "text-redirect", "redirecting"),
               3000,
             );
-            navigateNextItem(2000);
+            // Check if this is a course completion (no next item = course complete)
+            const prevNext = document.querySelector("#prev-next");
+            const nextItemLink = prevNext?.querySelector(
+              '[fs-list-element="next-item"] a',
+            );
+            const isCourseCompletion = !nextItemLink; // No next item means course is complete
+            navigateNextItem(2000, isCourseCompletion);
           }
 
           // if quiz, set notif & reveal answers
@@ -885,7 +891,7 @@ function codeToRun() {
     }
   };
 
-  const navigateNextItem = (delay = 0) => {
+  const navigateNextItem = (delay = 0, isCourseCompletion = false) => {
     const prevNext = document.querySelector("#prev-next");
     if (prevNext) {
       const nextItemLink = prevNext.querySelector(
@@ -904,7 +910,11 @@ function codeToRun() {
         const courseLink = document.querySelector("a.breadcrumb-link");
         if (courseLink) {
           willRedirect = true;
-          redirectHref = courseLink.getAttribute("href") + "?confettis";
+          // Use ?course-completed for course completion, ?confettis for regular module completion
+          const confettiParam = isCourseCompletion
+            ? "?course-completed"
+            : "?confettis";
+          redirectHref = courseLink.getAttribute("href") + confettiParam;
         }
       }
 
@@ -1003,23 +1013,55 @@ function codeToRun() {
     }
 
     // Check for confettis in URL params
-    if (urlParams.has("confettis")) {
-      // Check if the current page is in the course folder
-      // Assumption: course pages have '/course/' in the URL path
-      const pathname = window.location.pathname;
-      if (pathname.includes("/courses/")) {
-        // convert next steps rich text buttons to buttons
-        nextStepsRTButtonConversion();
+    if (urlParams.has("course-completed")) {
+      // Course completion - show final confetti and next steps
+      showNextStepsSection();
+      // fire final confettis
+      finalConfettis();
+    } else if (urlParams.has("confettis")) {
+      // Regular module completion - show regular confetti
+      confettis();
+    }
+  };
 
-        // unhide next steps section
-        const nextSteps = document.querySelector("#next-steps");
-        if (nextSteps) nextSteps.classList.remove("is-hidden-onload");
+  const showNextStepsSection = () => {
+    // Convert next steps rich text links to buttons
+    const nextStepsRichText = document.querySelector("#next-steps-rich-text");
+    if (nextStepsRichText) {
+      nextStepsRichText.querySelectorAll("a").forEach((link) => {
+        link.classList.add("btn");
+      });
+    }
 
-        // fire final confettis
-        finalConfettis();
-      } else {
-        confettis();
-      }
+    // Unhide next steps section
+    const nextSteps = document.querySelector("#next-steps");
+    if (nextSteps) {
+      nextSteps.classList.remove("is-hidden-onload");
+    }
+  };
+
+  const checkCompletedCourse = (member) => {
+    // Check if we're on a course page
+    const pathname = window.location.pathname;
+    if (!pathname.includes("/courses/")) {
+      return;
+    }
+
+    // Get the course ATID from page-atid attribute
+    const pageAtid = document.body.getAttribute("page-atid");
+    if (!pageAtid) {
+      return;
+    }
+
+    // Check if this course is in the completed-courses array
+    const completedCourses = member?.data?.customFields["completed-courses"];
+    if (
+      completedCourses &&
+      Array.isArray(completedCourses) &&
+      completedCourses.includes(pageAtid)
+    ) {
+      // Course is completed - show next steps section
+      showNextStepsSection();
     }
   };
 
@@ -1046,20 +1088,12 @@ function codeToRun() {
       setAutoCompleteLink();
       handleFormSubmission();
       setCourseBackLink();
+      checkCompletedCourse(member);
       checkParams();
       hidePageLoader();
     });
   });
 }
-
-const nextStepsRTButtonConversion = () => {
-  const nextStepsRichText = document.querySelector("#next-steps-rich-text");
-  if (nextStepsRichText) {
-    nextStepsRichText.querySelectorAll("a").forEach((link) => {
-      link.classList.add("btn");
-    });
-  }
-};
 
 if (window.$memberstackReady) {
   // Run the code immediately if Memberstack is already ready
