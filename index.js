@@ -717,10 +717,10 @@ function codeToRun() {
       ((completedCount / totalCount) * 100).toFixed(2),
     );
 
-    progressBar.style.width = `${progressPercentage}%`;
-    percentage.innerText = progressPercentage;
+    if (progressBar) progressBar.style.width = `${progressPercentage}%`;
+    if (percentage) percentage.innerText = progressPercentage;
     if (progressPercentage === 100) {
-      confetti.classList.remove("is-hidden-onload");
+      if (confetti) confetti.classList.remove("is-hidden-onload");
       if (withConfettiTF) confettis();
       const pageType = document.body.getAttribute("page-type");
       if (type === "sub-module" && pageType === "module") {
