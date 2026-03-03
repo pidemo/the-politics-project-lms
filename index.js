@@ -493,211 +493,224 @@ function codeToRun() {
   };
 
   const finalConfettis = () => {
-    // 🎨 COLOURS (Original + Warmer Putty + Gold)
-    const colors = [
-      "#e63a11", // red
-      "#303D87", // blue
-      "#EDE2E2", // warmer putty
-      "#D4AF37", // gold
-    ];
+    const fire = () => {
+      // 🎨 COLOURS (Original + Warmer Putty + Gold)
+      const colors = [
+        "#e63a11", // red
+        "#303D87", // blue
+        "#EDE2E2", // warmer putty
+        "#D4AF37", // gold
+      ];
 
-    const totalParticles = 220;
-    const cannonParticles = 140;
-    const showerParticles = totalParticles - cannonParticles;
+      const totalParticles = 220;
+      const cannonParticles = 140;
+      const showerParticles = totalParticles - cannonParticles;
 
-    const rand = (min, max) => Math.random() * (max - min) + min;
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      const rand = (min, max) => Math.random() * (max - min) + min;
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-    const makeParticle = ({ x, y, size, shape, color, z = 9999 }) => {
-      const el = document.createElement("div");
-      el.style.position = "fixed";
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
-      el.style.width = `${size}px`;
-      el.style.height = `${size}px`;
-      el.style.backgroundColor = color;
-      el.style.zIndex = String(z);
-      el.style.pointerEvents = "none";
-      el.style.willChange = "transform, opacity";
-      el.style.transform = "translate3d(0,0,0)";
+      const makeParticle = ({ x, y, size, shape, color, z = 9999 }) => {
+        const el = document.createElement("div");
+        el.style.position = "fixed";
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+        el.style.backgroundColor = color;
+        el.style.zIndex = String(z);
+        el.style.pointerEvents = "none";
+        el.style.willChange = "transform, opacity";
+        el.style.transform = "translate3d(0,0,0)";
 
-      if (shape === "dot") el.style.borderRadius = "999px";
-      if (shape === "streamer") {
-        el.style.width = `${Math.max(2, Math.round(size * 0.35))}px`;
-        el.style.height = `${Math.round(size * 2.2)}px`;
-        el.style.borderRadius = "3px";
-      }
-
-      document.body.appendChild(el);
-      return el;
-    };
-
-    const animatePhysicsParticle = (p) => {
-      const start = performance.now();
-      let last = start;
-
-      const tick = (now) => {
-        const dt = Math.min(32, now - last);
-        last = now;
-        const t = dt / 16.6667;
-
-        p.vy += p.g * t;
-
-        const wind =
-          p.windBase + Math.sin((now + p.windPhase) * p.windFreq) * p.windAmp;
-
-        p.vx += wind * t;
-
-        p.vx *= Math.pow(p.drag, t);
-        p.vy *= Math.pow(p.drag, t);
-
-        p.vx +=
-          Math.sin((p.rot + now * 0.004) * p.flutterFreq) * p.flutterAmp * t;
-
-        p.x += p.vx * t;
-        p.y += p.vy * t;
-
-        p.rot += p.omega * t;
-
-        const age = now - start;
-        const fadeStart = p.life * 0.7;
-
-        const opacity =
-          age < fadeStart
-            ? 1
-            : Math.max(0, 1 - (age - fadeStart) / (p.life - fadeStart));
-
-        p.el.style.opacity = opacity.toFixed(3);
-        p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
-
-        const offscreen =
-          p.y0 + p.y > window.innerHeight + 200 ||
-          p.x0 + p.x < -200 ||
-          p.x0 + p.x > window.innerWidth + 200;
-
-        if (age >= p.life || offscreen || opacity <= 0.001) {
-          p.el.remove();
-          return;
+        if (shape === "dot") el.style.borderRadius = "999px";
+        if (shape === "streamer") {
+          el.style.width = `${Math.max(2, Math.round(size * 0.35))}px`;
+          el.style.height = `${Math.round(size * 2.2)}px`;
+          el.style.borderRadius = "3px";
         }
+
+        document.body.appendChild(el);
+        return el;
+      };
+
+      const animatePhysicsParticle = (p) => {
+        const start = performance.now();
+        let last = start;
+
+        const tick = (now) => {
+          const dt = Math.min(32, now - last);
+          last = now;
+          const t = dt / 16.6667;
+
+          p.vy += p.g * t;
+
+          const wind =
+            p.windBase +
+            Math.sin((now + p.windPhase) * p.windFreq) * p.windAmp;
+
+          p.vx += wind * t;
+
+          p.vx *= Math.pow(p.drag, t);
+          p.vy *= Math.pow(p.drag, t);
+
+          p.vx +=
+            Math.sin((p.rot + now * 0.004) * p.flutterFreq) *
+            p.flutterAmp *
+            t;
+
+          p.x += p.vx * t;
+          p.y += p.vy * t;
+
+          p.rot += p.omega * t;
+
+          const age = now - start;
+          const fadeStart = p.life * 0.7;
+
+          const opacity =
+            age < fadeStart
+              ? 1
+              : Math.max(0, 1 - (age - fadeStart) / (p.life - fadeStart));
+
+          p.el.style.opacity = opacity.toFixed(3);
+          p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
+
+          const offscreen =
+            p.y0 + p.y > window.innerHeight + 200 ||
+            p.x0 + p.x < -200 ||
+            p.x0 + p.x > window.innerWidth + 200;
+
+          if (age >= p.life || offscreen || opacity <= 0.001) {
+            p.el.remove();
+            return;
+          }
+
+          requestAnimationFrame(tick);
+        };
 
         requestAnimationFrame(tick);
       };
 
-      requestAnimationFrame(tick);
+      // SIDE CANNONS
+      const spawnCannon = (side) => {
+        const fromLeft = side === "left";
+        const dir = fromLeft ? 1 : -1;
+
+        const baseX = fromLeft ? 0 : window.innerWidth;
+        const baseY = Math.round(window.innerHeight * 0.74);
+
+        const perSide = cannonParticles / 2;
+        const blastPower = 1.6;
+
+        for (let i = 0; i < perSide; i++) {
+          const delay = rand(0, 350);
+
+          setTimeout(() => {
+            const shape = pick(["square", "square", "dot", "streamer"]);
+            const size = Math.round(rand(7, 14));
+            const color = pick(colors);
+
+            const x0 = baseX + (fromLeft ? rand(10, 30) : rand(-30, -10));
+            const y0 = baseY + rand(-20, 20);
+
+            const el = makeParticle({ x: x0, y: y0, size, shape, color });
+
+            const speed = rand(22, 38) * blastPower;
+            const angle = rand(-88, -22) * (Math.PI / 180);
+
+            const vx = Math.cos(angle) * speed * dir + rand(0, 7) * dir;
+            const vy = Math.sin(angle) * speed + rand(-4, 3);
+
+            const p = {
+              el,
+              x0,
+              y0,
+              x: 0,
+              y: 0,
+              vx,
+              vy,
+              g: shape === "streamer" ? rand(0.28, 0.48) : rand(0.34, 0.6),
+              drag:
+                shape === "streamer" ? rand(0.97, 0.99) : rand(0.965, 0.985),
+              windBase: rand(-0.02, 0.02),
+              windAmp: rand(0.02, 0.06),
+              windFreq: rand(0.0012, 0.0025),
+              windPhase: rand(0, 10000),
+              flutterAmp:
+                shape === "dot" ? rand(0.01, 0.03) : rand(0.02, 0.06),
+              flutterFreq: rand(0.8, 1.6),
+              rot: rand(0, 360),
+              omega:
+                (shape === "streamer" ? rand(8, 18) : rand(12, 30)) *
+                (dir * rand(0.6, 1.4)),
+              life: rand(3400, 4800),
+            };
+
+            animatePhysicsParticle(p);
+          }, delay);
+        }
+      };
+
+      // TOP SHOWER
+      const spawnTopShower = () => {
+        const waveDelayBase = 800;
+
+        for (let i = 0; i < showerParticles; i++) {
+          const delay = waveDelayBase + rand(0, 1100);
+
+          setTimeout(() => {
+            const shape = pick(["square", "dot", "streamer"]);
+            const size = Math.round(rand(6, 12));
+            const color = pick(colors);
+
+            const x = rand(
+              window.innerWidth * 0.12,
+              window.innerWidth * 0.88,
+            );
+            const y = -30;
+
+            const el = makeParticle({ x, y, size, shape, color });
+
+            const sway1 = rand(-90, 90);
+            const sway2 = rand(-180, 180);
+            const spin = rand(420, 1200);
+
+            const animation = el.animate(
+              [
+                {
+                  transform: "translate3d(0,0,0) rotate(0deg)",
+                  opacity: 1,
+                  offset: 0,
+                },
+                {
+                  transform: `translate3d(${sway1}px, ${window.innerHeight * 0.45}px, 0) rotate(${spin * 0.4}deg)`,
+                  opacity: 1,
+                  offset: 0.55,
+                },
+                {
+                  transform: `translate3d(${sway2}px, ${window.innerHeight + 120}px, 0) rotate(${spin}deg)`,
+                  opacity: 0,
+                  offset: 1,
+                },
+              ],
+              {
+                duration: 5200,
+                easing: "cubic-bezier(0.15, 0.55, 0.25, 1)",
+                fill: "forwards",
+              },
+            );
+
+            animation.onfinish = () => el.remove();
+          }, delay);
+        }
+      };
+
+      spawnCannon("left");
+      spawnCannon("right");
+      spawnTopShower();
     };
 
-    // SIDE CANNONS
-    const spawnCannon = (side) => {
-      const fromLeft = side === "left";
-      const dir = fromLeft ? 1 : -1;
-
-      const baseX = fromLeft ? 0 : window.innerWidth;
-      const baseY = Math.round(window.innerHeight * 0.74);
-
-      const perSide = cannonParticles / 2;
-      const blastPower = 1.6;
-
-      for (let i = 0; i < perSide; i++) {
-        const delay = rand(0, 350);
-
-        setTimeout(() => {
-          const shape = pick(["square", "square", "dot", "streamer"]);
-          const size = Math.round(rand(7, 14));
-          const color = pick(colors);
-
-          const x0 = baseX + (fromLeft ? rand(10, 30) : rand(-30, -10));
-          const y0 = baseY + rand(-20, 20);
-
-          const el = makeParticle({ x: x0, y: y0, size, shape, color });
-
-          const speed = rand(22, 38) * blastPower;
-          const angle = rand(-88, -22) * (Math.PI / 180);
-
-          const vx = Math.cos(angle) * speed * dir + rand(0, 7) * dir;
-          const vy = Math.sin(angle) * speed + rand(-4, 3);
-
-          const p = {
-            el,
-            x0,
-            y0,
-            x: 0,
-            y: 0,
-            vx,
-            vy,
-            g: shape === "streamer" ? rand(0.28, 0.48) : rand(0.34, 0.6),
-            drag: shape === "streamer" ? rand(0.97, 0.99) : rand(0.965, 0.985),
-            windBase: rand(-0.02, 0.02),
-            windAmp: rand(0.02, 0.06),
-            windFreq: rand(0.0012, 0.0025),
-            windPhase: rand(0, 10000),
-            flutterAmp: shape === "dot" ? rand(0.01, 0.03) : rand(0.02, 0.06),
-            flutterFreq: rand(0.8, 1.6),
-            rot: rand(0, 360),
-            omega:
-              (shape === "streamer" ? rand(8, 18) : rand(12, 30)) *
-              (dir * rand(0.6, 1.4)),
-            life: rand(3400, 4800),
-          };
-
-          animatePhysicsParticle(p);
-        }, delay);
-      }
-    };
-
-    // TOP SHOWER
-    const spawnTopShower = () => {
-      const waveDelayBase = 800;
-
-      for (let i = 0; i < showerParticles; i++) {
-        const delay = waveDelayBase + rand(0, 1100);
-
-        setTimeout(() => {
-          const shape = pick(["square", "dot", "streamer"]);
-          const size = Math.round(rand(6, 12));
-          const color = pick(colors);
-
-          const x = rand(window.innerWidth * 0.12, window.innerWidth * 0.88);
-          const y = -30;
-
-          const el = makeParticle({ x, y, size, shape, color });
-
-          const sway1 = rand(-90, 90);
-          const sway2 = rand(-180, 180);
-          const spin = rand(420, 1200);
-
-          const animation = el.animate(
-            [
-              {
-                transform: "translate3d(0,0,0) rotate(0deg)",
-                opacity: 1,
-                offset: 0,
-              },
-              {
-                transform: `translate3d(${sway1}px, ${window.innerHeight * 0.45}px, 0) rotate(${spin * 0.4}deg)`,
-                opacity: 1,
-                offset: 0.55,
-              },
-              {
-                transform: `translate3d(${sway2}px, ${window.innerHeight + 120}px, 0) rotate(${spin}deg)`,
-                opacity: 0,
-                offset: 1,
-              },
-            ],
-            {
-              duration: 5200,
-              easing: "cubic-bezier(0.15, 0.55, 0.25, 1)",
-              fill: "forwards",
-            },
-          );
-
-          animation.onfinish = () => el.remove();
-        }, delay);
-      }
-    };
-
-    spawnCannon("left");
-    spawnCannon("right");
-    spawnTopShower();
+    fire();
+    setTimeout(fire, 1000);
   };
 
   const buttonFinalConfettis = () => {
