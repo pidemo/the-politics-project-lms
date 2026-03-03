@@ -492,7 +492,13 @@ function codeToRun() {
   };
 
   const finalConfettis = () => {
-    const colors = ["#e63a11", "#303D87", "#3c405d"];
+    // 🎨 COLOURS (Original + Warmer Putty + Gold)
+    const colors = [
+      "#e63a11", // red
+      "#303D87", // blue
+      "#EDE2E2", // warmer putty
+      "#D4AF37", // gold
+    ];
 
     const totalParticles = 220;
     const cannonParticles = 140;
@@ -500,10 +506,6 @@ function codeToRun() {
 
     const rand = (min, max) => Math.random() * (max - min) + min;
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-    // TEMP: don’t block for reduced motion while you’re testing
-    // const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // if (prefersReducedMotion) return;
 
     const makeParticle = ({ x, y, size, shape, color, z = 9999 }) => {
       const el = document.createElement("div");
@@ -542,6 +544,7 @@ function codeToRun() {
 
         const wind =
           p.windBase + Math.sin((now + p.windPhase) * p.windFreq) * p.windAmp;
+
         p.vx += wind * t;
 
         p.vx *= Math.pow(p.drag, t);
@@ -557,6 +560,7 @@ function codeToRun() {
 
         const age = now - start;
         const fadeStart = p.life * 0.7;
+
         const opacity =
           age < fadeStart
             ? 1
@@ -581,6 +585,7 @@ function codeToRun() {
       requestAnimationFrame(tick);
     };
 
+    // SIDE CANNONS
     const spawnCannon = (side) => {
       const fromLeft = side === "left";
       const dir = fromLeft ? 1 : -1;
@@ -589,13 +594,14 @@ function codeToRun() {
       const baseY = Math.round(window.innerHeight * 0.74);
 
       const perSide = cannonParticles / 2;
+      const blastPower = 1.6;
 
       for (let i = 0; i < perSide; i++) {
         const delay = rand(0, 350);
 
         setTimeout(() => {
           const shape = pick(["square", "square", "dot", "streamer"]);
-          const size = Math.round(rand(6, 12));
+          const size = Math.round(rand(7, 14));
           const color = pick(colors);
 
           const x0 = baseX + (fromLeft ? rand(10, 30) : rand(-30, -10));
@@ -603,11 +609,11 @@ function codeToRun() {
 
           const el = makeParticle({ x: x0, y: y0, size, shape, color });
 
-          const speed = rand(18, 28);
-          const angle = rand(-70, -35) * (Math.PI / 180);
+          const speed = rand(22, 38) * blastPower;
+          const angle = rand(-88, -22) * (Math.PI / 180);
 
-          const vx = Math.cos(angle) * speed * dir + rand(0, 3) * dir;
-          const vy = Math.sin(angle) * speed + rand(-2, 1);
+          const vx = Math.cos(angle) * speed * dir + rand(0, 7) * dir;
+          const vy = Math.sin(angle) * speed + rand(-4, 3);
 
           const p = {
             el,
@@ -617,9 +623,8 @@ function codeToRun() {
             y: 0,
             vx,
             vy,
-            g: shape === "streamer" ? rand(0.35, 0.55) : rand(0.45, 0.75),
-            drag:
-              shape === "streamer" ? rand(0.965, 0.985) : rand(0.955, 0.975),
+            g: shape === "streamer" ? rand(0.28, 0.48) : rand(0.34, 0.6),
+            drag: shape === "streamer" ? rand(0.97, 0.99) : rand(0.965, 0.985),
             windBase: rand(-0.02, 0.02),
             windAmp: rand(0.02, 0.06),
             windFreq: rand(0.0012, 0.0025),
@@ -630,35 +635,34 @@ function codeToRun() {
             omega:
               (shape === "streamer" ? rand(8, 18) : rand(12, 30)) *
               (dir * rand(0.6, 1.4)),
-            life: rand(3200, 4600),
+            life: rand(3400, 4800),
           };
 
-          // IMPORTANT: translate is relative, so we keep base position via left/top
-          // (already set in makeParticle). Physics uses translate only.
           animatePhysicsParticle(p);
         }, delay);
       }
     };
 
+    // TOP SHOWER
     const spawnTopShower = () => {
-      const waveDelayBase = 1100;
+      const waveDelayBase = 800;
 
       for (let i = 0; i < showerParticles; i++) {
-        const delay = waveDelayBase + rand(0, 900);
+        const delay = waveDelayBase + rand(0, 1100);
 
         setTimeout(() => {
           const shape = pick(["square", "dot", "streamer"]);
-          const size = Math.round(rand(5, 10));
+          const size = Math.round(rand(6, 12));
           const color = pick(colors);
 
-          const x = rand(window.innerWidth * 0.2, window.innerWidth * 0.8);
-          const y = -20;
+          const x = rand(window.innerWidth * 0.12, window.innerWidth * 0.88);
+          const y = -30;
 
           const el = makeParticle({ x, y, size, shape, color });
 
-          const sway1 = rand(-70, 70);
-          const sway2 = rand(-140, 140);
-          const spin = rand(360, 1100);
+          const sway1 = rand(-90, 90);
+          const sway2 = rand(-180, 180);
+          const spin = rand(420, 1200);
 
           const animation = el.animate(
             [
@@ -668,17 +672,21 @@ function codeToRun() {
                 offset: 0,
               },
               {
-                transform: `translate3d(${sway1}px, ${window.innerHeight * 0.45}px, 0) rotate(${spin * 0.45}deg)`,
+                transform: `translate3d(${sway1}px, ${window.innerHeight * 0.45}px, 0) rotate(${spin * 0.4}deg)`,
                 opacity: 1,
                 offset: 0.55,
               },
               {
-                transform: `translate3d(${sway2}px, ${window.innerHeight + 80}px, 0) rotate(${spin}deg)`,
+                transform: `translate3d(${sway2}px, ${window.innerHeight + 120}px, 0) rotate(${spin}deg)`,
                 opacity: 0,
                 offset: 1,
               },
             ],
-            { duration: 3600, easing: "ease-out", fill: "forwards" },
+            {
+              duration: 5200,
+              easing: "cubic-bezier(0.15, 0.55, 0.25, 1)",
+              fill: "forwards",
+            },
           );
 
           animation.onfinish = () => el.remove();
@@ -689,6 +697,12 @@ function codeToRun() {
     spawnCannon("left");
     spawnCannon("right");
     spawnTopShower();
+  };
+
+  const buttonFinalConfettis = () => {
+    const button = document.getElementById("trigger-final-confettis");
+    if (!button) return;
+    button.addEventListener("click", finalConfettis);
   };
 
   const processVisualProgress = (element, withConfettiTF) => {
@@ -1091,6 +1105,7 @@ function codeToRun() {
       checkCompletedCourse(member);
       checkParams();
       hidePageLoader();
+      buttonFinalConfettis();
     });
   });
 }
