@@ -22,6 +22,7 @@ function codeToRun() {
       submitSuccessMessage: "Answers Saved!",
       notification: "#quiz-notification",
       loader: "#quiz-loader",
+      finalConfettisButton: "#trigger-final-confettis",
     },
   };
 
@@ -700,7 +701,9 @@ function codeToRun() {
   };
 
   const buttonFinalConfettis = () => {
-    const button = document.getElementById("trigger-final-confettis");
+    const button = document.getElementById(
+      CONFIG.selectors.finalConfettisButton,
+    );
     if (!button) return;
     button.addEventListener("click", finalConfettis);
   };
